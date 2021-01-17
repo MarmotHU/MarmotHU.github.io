@@ -1,0 +1,143 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Model Assessment and Selection - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Model Assessment and Selection</h1>
+                    2020-04-02
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>NOTES 03/17</h2>
+<p>The main idea is that we want to  be able to build models that are generalizable.</p>
+<p>Consider the training dataset $\tau = \left\{(\mathbf{x}_i, y_i \right\}_{i=1,\dots,N}$, we have the estimator $\hat{f}_{\tau}(\mathbf{x}_0)$ for $y_0$. The generalization (test) prediction error for this independent sample $(\mathbf{x}_0, y_0)$ with respect to less function $L$ is:</p>
+<p>$$\mathrm{Err}_{\tau} = \mathbb{E}_{\mathbf{x}_0, y_0} \left[L(y_0, \hat{f}_{\tau} | \tau) \right]$$</p>
+<p>The EPE is:</p>
+<p>$$\mathrm{Err} = \mathbb{E}_{\tau}\left[\mathrm{Err}_{\tau} \right]$$</p>
+<p>In contract, training error is:</p>
+<p>$$\mathbb{E}_{\tau}[L(y, \hat{f}_{\tau}(\mathbf{x}))]$$</p>
+<p>In practice, we use (sample) training error $\overline{\mathrm{err}} = \frac{1}{N} \sum_{i=1}^{N} L(y_i, \hat{f}_{\tau}(\mathbf{x}_i))$</p>
+<p>For instance, for the loss we can use squared error loss:</p>
+<p>$$L(y_i, \hat{f}_{\tau}(\mathbf{x}_i)) = [y_i - \hat{f}_{\tau}(\mathbf{x}_i)]^2$$</p>
+<p>For a categorical response $G = \left\{1,\dots,k \right\}$,  typical loss:</p>
+<ul>
+<li>0-1 loss: $L(G, \hat{G}(\mathbf{x}_i)) = I(G \not = \hat{G}(\mathbf{x}_i))$</li>
+<li>Deviance: $L(G, \hat{G}(\mathbf{x}_i)) = -2 \log \mathbb{P}_{\mathbf{x}}(G)$</li>
+</ul>
+<p>In general, we can take $L(y_i, \hat{f}_{\tau}(\mathbf{x}_i)) = -2 \log \mathbb{P}_{\hat{f}_{\tau}(\mathbf{x})} (y)$. Moreover, it might be the case that $\hat{f}_{\tau, \alpha}$ has a &quot;tuning&quot; parameter $\alpha$ that controls model complexity and has to be &quot;calibrated&quot;.</p>
+<p>We have 2 main goals: model selection and assessment.</p>
+<p>To this end, we can split the data into 3 parts:</p>
+<ul>
+<li>Training (for estimation)</li>
+<li>Validation (for selection)</li>
+<li>Testing (for assessment)</li>
+</ul>
+<h3>Bias-variance Trade-off</h3>
+<p>To study the EPE, for simplicity, let us assume a fixed feature set, $\mathbb{E}[y] = f(\mathbf{x})$ and $\mathrm{y} = \sigma^2$. Under squared error loss,</p>
+<p>$$\begin{aligned} \operatorname{EPE}_{\hat{f}}(\mathbf{x}_{0}) &amp;=\mathrm{E}_{y_0 | \mathbf{x}_{0}} \mathrm{E}_{\mathcal{T}}(y_{0}-\hat{f}(\mathbf{x}_0))^{2} \\ &amp;=\mathrm{E}_{\mathcal{T}}[y_{0}-\mathrm{E}_{\mathcal{T}} [y_{0}|\mathbf{x}_0]]^{2} + \mathrm{E}_{\mathcal{T}} [\hat{f}(\mathbf{x}_0) - \mathrm{E}_{\mathcal{T}} [y_{0}|\mathbf{x}_0]] ^{2} \\ &amp;=\sigma^2 +\mathrm{E}_{\mathcal{T}}[\hat{f}(\mathbf{x}_0)-\mathrm{E}_{\mathcal{T}} [\hat{f}(\mathbf{x}_0)]]^{2}+[\mathrm{E}_{\mathcal{T}} [y_{0}|\mathbf{x}_0]- \mathrm{E}_{\mathcal{T}} [\hat{f}(\mathbf{x}_0)] ]^{2} \\ &amp;=\sigma^2+\operatorname{Var}_{\mathcal{T}}[\hat{f}(\mathbf{x}_0)]+\operatorname{Bias}^{2}[\hat{f}(\mathbf{x}_0)] \end{aligned}$$</p>
+<p>In practice, we approximate Err using &quot;in-sample&quot; error: assume $(\mathbf{x}_0)_i = \mathbf{x}_i$ and use</p>
+<p>$$\mathrm{Err}_{in} = \frac{1}{N} \sum_{i=1}^{N} \mathrm{Err} (\mathbf{x}_i)$$</p>
+<p>This works well in practice for model selection.</p>
+<p>For example, for linear model:</p>
+<p>$$\begin{aligned} \mathrm{Err}_{in} &amp;= \frac{1}{N} \sum_{i=1}^{N} \mathrm{Err}(\mathbf{x}_i) \\ &amp;= \sigma^2 + \frac{1}{N} \sum_{i=1}^{N} \left[f(\mathbf{x}_i) - \mathbb{E} [\hat{f}_{\tau}(\mathbf{x}_0)] \right]^2 + \frac{1}{N} \sum_{i=1}^{N} \mathbf{x}_i^{\top} (\mathbf{X}^{\top} \mathbf{X})^{-1} \mathbf{x}_i \\ &amp;= \sigma^2 + \sigma^2 \frac{P}{N} + \frac{1}{N} \sum_{i=1}^{N} \left[f(\mathbf{x}_i) - \mathbb{E} [\hat{f}_{\tau}(\mathbf{x}_0)] \right]^2 \end{aligned}$$</p>
+<p>where $P = tr(H)$ and $h_{ii} = \mathbf{x}_i^{\top} (\mathbf{X}^{\top} \mathbf{X})^{-1} \mathbf{x}_i$</p>
+<p>In general, we call &quot;optimism&quot;:</p>
+<p>$$\mathrm{op} = \mathrm{Err}_{in} - \overline{\mathrm{err}}$$</p>
+<p>and often it can be shown that</p>
+<p>$$\omega = \mathbb{E}_y[\mathrm{op}] = \frac{2}{N} \sum_{i=1}^{N} \mathrm{Cov} (y_i, f_{\tau} (\mathbf{x}_i))$$</p>
+<p>Thus, $\mathbb{E}_y [\mathrm{Err}_{in}] = \mathbb{E} (\overline{\mathrm{err}}) + \frac{2}{N} \sum_{i=1}^{N} \mathrm{Cov} (y_i, f_{\tau} (\mathbf{x}_i))$</p>
+<p>In practice, we can use $\widehat{\mathrm{Err}_{in}} = \overline{\mathrm{err}} + \hat{\omega}$.</p>
+<ul>
+<li>For squared loss: $\widehat{\mathrm{Err}_{in}} = C_p = \overline{\mathrm{err}} + 2 \frac{P}{N} \hat{\sigma}^2$</li>
+<li>Deviance: $\mathrm{AIC} = \frac{1}{N} \sum_{i=1}^{N} \left[-2 \log \mathbb{P}_{\hat{f}_{\tau}(\mathbf{x})}(y_i) \right] + 2 \frac{P}{N} \hat{\sigma}^2$</li>
+</ul>
+<p>If the model depends on a tuning parameter $\alpha$</p>
+<p>$$\widehat{\mathrm{Err}_{in}}(\alpha) = \overline{\mathrm{err}}(\alpha) + \omega(\alpha)$$</p>
+<p>For instance, $\mathrm{AIC}(\alpha) = \overline{\mathrm{err}}(\alpha) + 2 \frac{P}{N} \hat{\sigma}^2$</p>
+<h3>Cross Validation</h3>
+<p>We can split the data according to the map $\mathscr{K}:\left\{1,\dots,N \right\} \rightarrow \left\{1,\dots,K \right\}$.</p>
+<p>Define $\hat{f}^{-l}(x) = \hat{f}_{\left\{(x_i, y_i): \mathscr{K}(i) \not = l \right\}} (x)$, then we have:</p>
+<p>$$\mathrm{CV}(\hat{f}) = \frac{1}{N} \sum_{i=1}^{N} L(y_i, \hat{f}^{-\mathscr{K}(i)}(\mathbf{x}_i))$$</p>
+<p>Usually, $K=5$ or $K=10$. If $K=N$, then $\mathscr{K}(i)=i$, &quot;leave-one-out&quot; CV.</p>
+<p>E.G., linear models with squared error:</p>
+<p>$$\begin{aligned} \mathrm{CV}(\hat{f}) &amp;= \frac{1}{N} \sum_{i=1}^{N} \left[ y_i - \hat{f}^{-l} (\mathbf{x}_i) \right]^2 \\ &amp;= \frac{1}{N} \sum_{i=1}^{N} \left[ \frac{y_i - \hat{f} (\mathbf{x}_i)}{1-h_{ii}} \right]^2 \end{aligned}$$</p>
+<p>With a slight adaptation, we can solve some computations $ \mathrm{CV}(\hat{f}) = \frac{1}{N} \sum_{i=1}^{N} \left[ \frac{y_i - \hat{f} (\mathbf{x}_i)}{1-\overline{h}} \right]^2$</p>
+<p>where $\bar{h} = \frac{\mathrm{tr}(H)}{N}$.</p>
+<p>E.G., if $\hat{y} = S_{\alpha}y$, then $\bar{h} = \frac{\mathrm{tr}(S_{\alpha})}{N}$</p>
+<h2>NOTES 03/19</h2>
+<p>Recall that in KS regression we define a &quot;kernel&quot;,</p>
+<p>$$\mathrm{K}_{\lambda}(\mathbf{x}_0, \mathbf{x}) = \mathrm{D} \left(\frac{||\mathbf{x}_0 - \mathbf{x}||}{\lambda} \right)$$</p>
+<p>with $D = \phi$ (PDF of STD normal), or Epanechnikov kernel.</p>
+<p>Then, at $\mathbf{x}_0$, KS regression is just a locally weighted regression of $y \sim \mathrm{B}(x)$ with local weights $\mathrm{K}_{\lambda}(\mathbf{x}_0, \mathbf{x})$. That is, with $b(x) = \begin{bmatrix} 1 &amp; x &amp; x^2 \end{bmatrix}$, for example, $\hat{f}(\mathbf{x}_0) = b(\mathbf{x}_0)^{\top} \hat{\theta}(\mathbf{x}_0)$, where</p>
+<p>$$\hat{\theta}(\mathbf{x}_0) = \underset{\theta(\mathbf{x}_0)}{\mathrm{argmax}} \sum_{i=1}^{N} \mathrm{K}_{\lambda}(\mathbf{x}_0, \mathbf{x})\space l(y_i, b(\mathbf{x}_0)^{\top} \hat{\theta}(\mathbf{x}_0))$$</p>
+<p>with $\hat{f}(\mathbf{x}_0) = g^{-1}(b(\mathbf{x}_0)^{\top} \hat{\theta}(\mathbf{x}_0))$.</p>
+<p>For example, in logistic regression, we have $g = \mathrm{logit}$, and</p>
+<p>$$l(y_i, b(\mathbf{x}_0)^{\top} \hat{\theta}(\mathbf{x}_0)) = y_i b(\mathbf{x}_0)^{\top} \hat{\theta}(\mathbf{x}_0) - \log (1 + e^{b(\mathbf{x}_0)^{\top} \hat{\theta}(\mathbf{x}_0)})$$</p>
+<p>Recall, $\hat{y} = S_{\lambda} y$, $df_{\lambda} = \mathrm{tr}(S_{\lambda})$</p>
+<p>How to select $\lambda$? Can be estimated from prediction error from several information criteria ($C_p$, AIC, BIC, etc.) or cross-validation (CV).</p>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

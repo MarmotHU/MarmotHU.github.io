@@ -1,0 +1,219 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Perceptron Linear Classifier and Its Extensions - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Perceptron Linear Classifier and Its Extensions</h1>
+                    2020-01-02
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <p><a href="https://github.com/ZijingHu/Statistical-Learning-Methods-python-replication/blob/master/Chapter/Models/Perceptron.py">Code</a>  <a href="https://github.com/ZijingHu/Statistical-Learning-Methods-python-replication/blob/master/Chapter/Chapter-2-Perceptron.ipynb">Jupyter Notebook Demo</a>.</p>
+<p>The perceptron algorithm was invented in 1958 by Frank Rosenblatt, a psychologist who was trying to mathematically model the behaviors of biological neurons. The New York Times reported it to be &quot;the embryo of an electronic computer that will be able to walk, talk, see, write, reproduce itself and be conscious of its existence.&quot;</p>
+<p>Although it was quickly proved to be not so all-powerful, perceptron became conceptual foundations of the support vector machine and neural network and played a key role in the development of machine learning algorithm.</p>
+<p>This article aims to explore and analyse the simplest perceptron algorithm and some of its extensions, and replicate those fancy models in Python.</p>
+<h2>A Brief Introduction of Perceptron Algorithm</h2>
+<p>Perceptron is defined by the formula $f(x)=sign(w \cdot x+b)$ , where $w$  is a vector of real-valued weights, $b$  is the bias and the function $sign$  is $sign(x)=$ $\begin{cases} +1,  &amp; x &gt; 0 \\ -1, &amp; x \leqslant0 \end{cases}$ .</p>
+<p><br><center><img src="algviz.svg" width=100%></center><br></p>
+<p>Thus, we can define the loss function as $L(w, b) = - \sum_{x_i \in M} y_i \left(w \cdot x_i + b \right)$ . $M$ means the set of misclassified records. The goal of learning is to minimize $L(w, b)$ .</p>
+<p>Generally, we require the dataset to be linearly separable or learning will never stop at a point where all records are classified properly. To deal with this, we can set the maximum iteration to stop the algorithm at a relatively correct position, or turn to more complex perceptron algorthms that has been optimized to better deal with linearly non-separable patterns.</p>
+<h2>Algorithms and Replications</h2>
+<p>Here I selected several popular perceptron algorithms and replicated them in Python. Code can be found in <a href="https://github.com/ZijingHu/Statistical-Learning-Methods-python-replication/blob/master/Chapter/Models/Perceptron.py">here</a> and <a href="https://github.com/ZijingHu/Statistical-Learning-Methods-python-replication/blob/master/Chapter/Chapter-2%20Perceptron.ipynb">here</a>.</p>
+<h3>The Original Perceptron Algorithm</h3>
+<p>The original perceptron algorithm use every record to optimize its classifications. When most of records can be separated by a hyperplane, this algorithm can perform very well. However, it will lose its advantages if the dataset are highly linearly non-separable. And, since the model will take every record into consideration, outliers can easily lead to low effectiveness.</p>
+<p>Here are some experiments of the perceptron algorithm to show its performance on different type of datasets.</p>
+<p><br><center><img src="original2.svg" width=100%></center></p>
+<center><img src="original.svg" width=100%></center><br>
+<p><strong>Algorithm: Perceptron</strong><br />
+<strong>INPUT</strong>: training set $S = \lbrace (x_1, y_1), (x_2, y_2), ...,(x_N, y_N) \rbrace$ , s.t. $x_i \in X = R^n, y_i \in Y = \lbrace -1, +1 \rbrace, i = 1, 2, ..., N$ . Learning rate $\eta$ $(0 &lt; \eta \leqslant 1)$ . Number of epochs $T$ .<br />
+<strong>OUTPUT</strong>: $w, b$ ; the perceptron $f(x) = sign(w \cdot x + b)$ .<br />
+<strong>INITIALIZE</strong> $w$ and $b$ .<br />
+<strong>REPEAT</strong> $T$  times.<br />
+ <strong>FOR</strong> $i \in {1..N}$ <strong>DO</strong><br />
+  <strong>IF</strong> $y_i (w \cdot x_i + b) \leqslant 0$  <strong>THEN</strong><br />
+    $w \leftarrow w + \eta y_i x_i$<br />
+    $b \leftarrow b + \eta y_i$<br />
+  <strong>END IF</strong><br />
+ <strong>END FOR</strong><br />
+<strong>UNTIL</strong> termination criterion</p>
+<h3>The Dual-form</h3>
+<p>The logic of dual-form perceptron is to solve $w$ and $b$ by the linear combination of $x$ and $y$ . It is completely equivalent to the original one - they are just two different routes but lead to same destination. (But the result can be different with different maximum iteration)</p>
+<p><br><center><img src="dualform.svg" width=100%></center><br></p>
+<p><u><strong>Algorithm: Dual-form Perceptron</strong></u><br />
+<strong>INPUT</strong>: training set $S = \lbrace (x_1, y_1), (x_2, y_2), ...,(x_N, y_N) \rbrace$, s.t. $x_i \in X = R^n, y_i \in Y = \lbrace -1, +1 \rbrace, i = 1, 2, ..., N$ . Learning rate $\eta$ $(0 &lt; \eta \leqslant 1)$ . Number of epochs $T$ .<br />
+<strong>OUTPUT</strong>: $a, b$; the perceptron $f(x) = sign( \sum_{i=j}^N a_j y_j x_j \cdot x_i + b)$ . $a = (a_1, a_2, ..., a_N)^T$<br />
+<strong>INITIALIZE</strong> $a$ and $b$ .<br />
+<strong>REPEAT</strong> $T$  times.<br />
+ <strong>FOR</strong> $i \in {1..N}$  <strong>DO</strong><br />
+  <strong>IF</strong> $y_i (\sum_{i=j}^N a_j y_j x_j \cdot x_i + b) \leqslant 0$  <strong>THEN</strong><br />
+   $a_i \leftarrow a_i + \eta$<br />
+   $b \leftarrow b + \eta y_i$<br />
+  <strong>END IF</strong><br />
+ <strong>END FOR</strong><br />
+<strong>UNTIL</strong> termination criterion<br />
+$w=\sum_{i=1}^{N} a_{i} y_{i} x_{i}$<br />
+$(b=\sum_{i=1}^{N} a_{i} y_{i})$</p>
+<h3>Pocket Algorithm</h3>
+<p>Pocket Algorithm is a good solution for non-separable data sets. It will not return the last result but the result &quot;in the pocket&quot;. In every iteration, the model will additionally evaluate the accuracy and put coefficients with best performance &quot;into the pocket&quot;. This strategy is a trade-off between calculating time and accuracy, which largely improve the effectiveness but will cost more time.</p>
+<p><br><center><img src="pocket.svg" width=100%></center><br></p>
+<p><u><strong>Algorithm: Pocket Algorithm</strong></u><br />
+<strong>INPUT</strong>: training set $S = \lbrace (x_1, y_1), (x_2, y_2), ...,(x_N, y_N) \rbrace$, s.t. $x_i \in X = R^n, y_i \in Y = \lbrace -1, +1 \rbrace, i = 1, 2, ..., N$ . Learning rate $\eta$ $(0 &lt; \eta \leqslant 1)$ . Number of epochs $T$ .<br />
+<strong>OUTPUT</strong>: $w, b$; the perceptron $f(x) = sign(w \cdot x + b)$.<br />
+<strong>TEMPORARY DATA</strong>: $w', b'$ to store temporary weight and interval. $num$ to store the number of training examples that $w$ and $b$ correctly classify. $num'$ to store the number of training examples that $w'$ and $b'$ correctly classify.<br />
+<strong>INITIALIZE</strong> $w$  and $b$ .<br />
+<strong>REPEAT</strong> $T$  times.<br />
+ <strong>FOR</strong> $i \in {1..N}$  <strong>DO</strong><br />
+  <strong>IF</strong> $y_i (w \cdot x_i + b) \leqslant 0$  <strong>THEN</strong><br />
+   $w \leftarrow w + \eta y_i x_i$<br />
+   $b \leftarrow b + \eta y_i$<br />
+  <strong>END IF</strong><br />
+  Compute $num'$ by checking every training example.<br />
+  <strong>IF</strong> $num' &gt; num$  <strong>THEM</strong><br />
+   $num \leftarrow num'$<br />
+   $w \leftarrow w'$<br />
+   $b \leftarrow b'$<br />
+  <strong>END IF</strong><br />
+ <strong>END FOR</strong><br />
+<strong>UNTIL</strong> termination criterion</p>
+<h3>Voted Perceptron</h3>
+<p>Voted perceptron can be seen as an application of bagging. It has been proven to be a very robust and efficient algorithm in dealing with many complex cases.</p>
+<p>Voted perceptron will record coefficients in every iteration and assign them different weights based on their performance. From the beginning, perceptrons are very weak and will be assign smaller weights. With more and more iteration, perceptrons will become more and more powerful and thus, will be assign larger weights. After finishing training, the model will take all recorded coefficients to predict and use the weight of each coefficients to decided the final result.</p>
+<p>As is shown in the below, voting process will generate non-linear edge though the most part of model is still linear.</p>
+<p><br><center><img src="voted.svg" width=100%></center><br></p>
+<p><u><strong>Algorithm: Voted Perceptron</strong></u><br />
+<strong>INPUT</strong>: training set $S = \lbrace (x_1, y_1), (x_2, y_2), ...,(x_N, y_N) \rbrace$, s.t. $x_i \in X = R^n, y_i \in Y = \lbrace -1, +1 \rbrace, i = 1, 2, ..., N$ . Learning rate $\eta$ $(0 &lt; \eta \leqslant 1)$ . Number of epochs $T$ .<br />
+<strong>OUTPUT</strong>: a list of weighted perceptrons $\lbrace (v_1, c_1), (v_2, c_2), ..., (v_k, c_k) \rbrace$ .<br />
+<strong>INITIALIZE</strong> $k = 0, v_1 = 0, b_1 = 0, c_1 = 0$ .<br />
+<strong>REPEAT</strong> $T$  times.<br />
+ <strong>FOR</strong> $i \in {1..N}$  <strong>DO</strong><br />
+  <strong>IF</strong> $y_i (w \cdot x_i + b) \leqslant 0$  <strong>THEN</strong><br />
+   $v_{k+1} \leftarrow v_k + \eta y_i x_i$<br />
+   $b_{k+1} \leftarrow b_k + \eta y_i$<br />
+   $c_{k+1} \leftarrow 1$<br />
+   $k \leftarrow k + 1$<br />
+  <strong>ELSE</strong><br />
+   $c_k \leftarrow c_k + 1$<br />
+ <strong>END FOR</strong><br />
+<strong>UNTIL</strong> termination criterion</p>
+<h3>Averaged Percetron</h3>
+<p>Average perceptron is very similar to voted percetron. However, it will generate only one classifier instead of many. Specifically, the formula of averaged perceptron is $sign((\sum_{i=1}^m c_i w_i) \cdot x + \sum_{i=1}^m c_i b_i)$, while the formula of voted perceptron is $sign(\sum_{i=1}^m c_i sign(w_i \cdot x)+b_i)$ . Thus, averaged perceptron  has linear classification edge, which makes it not as flexible as voted percetron.</p>
+<p><br><center><img src="averaged.svg" width=100%></center><br></p>
+<p><u><strong>Algorithm: Averaged Percetron</strong></u><br />
+<strong>INPUT</strong>: training set $S = \lbrace (x_1, y_1), (x_2, y_2), ...,(x_N, y_N) \rbrace$, s.t. $x_i \in X = R^n, y_i \in Y = \lbrace -1, +1 \rbrace, i = 1, 2, ..., N$ . Learning rate $\eta$ $(0 &lt; \eta \leqslant 1)$ . Number of epochs $T$ .<br />
+<strong>OUTPUT</strong>: $w, b$; the perceptron $f(x) = sign(w \cdot x + b)$.<br />
+<strong>INITIALIZE</strong> $w$, $b$, $u$  and $\beta$ .<br />
+<strong>REPEAT</strong> $T$  times.<br />
+ <strong>FOR</strong> $i \in {1..N}$  <strong>DO</strong><br />
+  <strong>IF</strong> $y_i (w \cdot x_i + b) \leqslant 0$  <strong>THEN</strong><br />
+   $w \leftarrow w + y_i x_i$<br />
+   $b \leftarrow b + y_i$<br />
+   $u \leftarrow u + c y_i x_i$<br />
+   $\beta \leftarrow \beta + c y_i$<br />
+  <strong>END IF</strong><br />
+  $c \leftarrow c + 1$<br />
+ <strong>END FOR</strong><br />
+<strong>UNTIL</strong> termination criterion<br />
+$w \leftarrow w - \frac{1}{c}u$<br />
+$b \leftarrow b - \frac{1}{c}\beta$</p>
+<h3>Perceptron with Margin</h3>
+<p>Perceptron with margin allows the classifier to &quot;make mistake&quot;. Only records outside the margin will be take into consideration, which makes the model less likely to overfit noises.</p>
+<p><br><center><img src="margin.svg" width=100%></center><br></p>
+<p>However, perceptron with margin is not completely same as SVM. SVM aims to maximize the margin, while perceptron aims to maximaze the accuracy of classification. Thus, just like the graph shows, perceptron with margin still has problems with overfitting.</p>
+<p><br><center><img src="margin2.svg" width=100%></center><br></p>
+<p><u><strong>Algorithm: Perceptron with Margin</strong></u><br />
+<strong>INPUT</strong>: training set $S = \lbrace (x_1, y_1), (x_2, y_2), ...,(x_N, y_N) \rbrace$, s.t. $x_i \in X = R^n, y_i \in Y = \lbrace -1, +1 \rbrace, i = 1, 2, ..., N$ . Margin width $m$ . Learning rate $\eta$ $(0 &lt; \eta \leqslant 1)$ . Number of epochs $T$ .<br />
+<strong>OUTPUT</strong>: $w, b$; the perceptron $f(x) = sign(w \cdot x + b)$.<br />
+<strong>INITIALIZE</strong> $w$  and $b$ .<br />
+<strong>REPEAT</strong> $T$  times.<br />
+ <strong>FOR</strong> $i \in {1..N}$  <strong>DO</strong><br />
+  <strong>IF</strong> $y_i (w \cdot x_i + b) \leqslant m$  <strong>THEN</strong><br />
+   $w \leftarrow w + \eta y_i x_i$<br />
+   $b \leftarrow b + \eta y_i$<br />
+  <strong>END IF</strong><br />
+ <strong>END FOR</strong><br />
+<strong>UNTIL</strong> termination criterion</p>
+<h2>Summary</h2>
+<p>Finally, I conducted a 100-run Monte-Carlo Cross Validation for all models that have been discussed.</p>
+<table>
+<tr><th width=30% style="text-align:center">Model</th><th width=30% style="text-align:center">Training Score</th><th widht=20% style="text-align:center">Testing Score</th><th widht=5% style="text-align:center">Time (s)</th></tr>
+<tr><td><center>Perceptron Algorithm</center></td><td><center>86.7%</center></td><td><center>86.4%</center></td><td><center>0.540s</center></td></tr>
+<tr><td><center>Perceptron Dual-form</center></td><td><center>86.5%</center></td><td><center>85.8%</center></td><td><center>0.588s</center></td></tr>
+<tr><td><center>Pocket Algorithm</center></td><td><center>87.5%</center></td><td><center>87.0%</center></td><td><center>0.728s</center></td></tr>
+<tr><td><center><b>Voted Perceptron</center></td><td><center><b>90.9%</center></td><td><center><b>89.8%</center></td><td><center><b>0.006s</center></td></tr>
+<tr><td><center>Averaged Perceptron</center></td><td><center>87.6%</center></td><td><center>87.2%</center></td><td><center>0.080s</center></td></tr>
+<tr><td><center>Perceptron with Margin</center></td><td><center>75.2%</center></td><td><center>74.0%</center></td><td><center>0.539s</center></td></tr>
+</table>
+<br>
+<h2>Reference</h2>
+<p>[1] Li, Hang. (2019). Statistical Learning Methods, Second Edition. Tsinghua University Press.<br />
+[2] Stephen, I. (1990). Perceptron-based learning algorithms. IEEE Transactions on neural networks, 50(2), 179.<br />
+[3] Freund, Y., &amp; Schapire, R. E. (1999). Large margin classification using the perceptron algorithm. Machine learning, 37(3), 277-296.<br />
+[4] Li, Y., Zaragoza, H., Herbrich, R., Shawe-Taylor, J., &amp; Kandola, J. (2002, July). The perceptron algorithm with uneven margins. In ICML (Vol. 2, pp. 379-386).<br />
+[5] Collobert, R., &amp; Bengio, S. (2004, July). Links between perceptrons, MLPs and SVMs. In Proceedings of the twenty-first international conference on Machine learning (p. 23). ACM.<br />
+[6] Daumé III, H. (2012). A course in machine learning. Publisher, ciml. info, 5, 69.</p>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

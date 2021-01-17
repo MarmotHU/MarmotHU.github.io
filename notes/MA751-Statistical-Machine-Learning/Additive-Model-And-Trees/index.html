@@ -1,0 +1,139 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Additive Model and Trees - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Additive Model and Trees</h1>
+                    2020-04-02
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>NOTES 03/24</h2>
+<p>We've talked about basis expansions and kernel smoothing as a way to model non-linearity in features. Generalized additive models (GAM) formalize a setup for these types of models.</p>
+<p>Suppose that we have N observations in response $y$ and P features $\mathbf{X}$. In GAMs, we assume:</p>
+<p>$$\mu(\mathbf{x}) = \mathbb{E}[y|\mathbf{x}] = \alpha \cdot \mathbf{1}_n + \sum_{j=1}^{P} f_j(\mathbf{x}_j) $$</p>
+<p>where each $f_j$ is a &quot;smoother&quot;.</p>
+<p>In general, we can assume $y$ belongs to an exponential family and thus defines a log-likeihood and:</p>
+<p>$$\mu(\mathbf{x}) = \mathbb{E}[y|\mathbf{x}] = g^{-1} \left[ \alpha \cdot \mathbf{1}_n + \sum_{j=1}^{P} f_j(\mathbf{x}_j) \right]$$</p>
+<p>E.G.,</p>
+<ul>
+<li>$g(\mu) = \mu$, &quot;identity&quot; for Gaussian responses.</li>
+<li>$g(\mu) = \log \frac{\mu}{1-\mu}$, &quot;logit&quot; for binomial.</li>
+<li>$g(\mu) = \log \mu$, &quot;log&quot; for count responses, e.g., Poisson responses.</li>
+</ul>
+<p>Moreover, Gams can be flexible and we can mix &amp; match:</p>
+<p>E.G.,</p>
+<ul>
+<li>$g(\mu) = \mathbf{X}\beta + \alpha_{k} + f(\mathbf{z})$, &quot;semi-parametric&quot;</li>
+<li>$g(\mu) = f(\mathbf{x}) + h_K(\mathbf{z})$, factor interaction</li>
+<li>$g(\mu) = f(\mathbf{x}) + h(\mathbf{z}, \mathbf{w})$</li>
+</ul>
+<p>Now, to be more concrete, let us fit $\mathbb{E}[y|\mathbf{x}] = \alpha \cdot \mathbf{1}_n + \sum_{j=1}^{P} f_j(\mathbf{x}_j)$ using (smooth) penalized functions:</p>
+<p>$$\mathrm{PRSS}(\alpha, f_1, \dots, f_P) = \sum_{i=1}^{n} \left[y_i - \alpha - \sum_{j=1}^{P} f_j(x_{ij}) \right]^2 + \sum_{j=1}^{P} \lambda_j \int \left[f_j^{\prime \prime}(t) \right]^2 dt$$</p>
+<p>It can be shown that each $\hat{f}_j$ that minimizes PRSS is a cubic splines with knots at the observations $x_{ij}$.</p>
+<p>(Recall that for a single feature we have $f = N \theta$, $\theta = (N^{\top}N+\lambda \Omega_N)^{-1} N^{\top}y$, $\hat{f}_{\lambda} = N \hat{\theta} = S_{\lambda}y$)</p>
+<p>To focus on the $f_j$'s only, we can eliminate the intercept $\alpha$ by centering the response, i.e., $\hat{\alpha} = \frac{1}{N} \sum_{i=1}^{N} y_i = \bar{y}$. Then to fit the model, we can use &quot;cyclic gradient descent&quot;: for each feature j we smooth regress the &quot;adjusted&quot; response $y - \hat{\alpha}\cdot \mathbf{1}_n - \sum_{k \not = j} \hat{f}_k(\mathbf{x}_k) \sim f_j(\mathbf{x}_j)$</p>
+<p><strong>Algorithm: Backfitting</strong><br>
+<strong>INPUT</strong>: response $y$, feature $\mathbf{X}$, tuning parameters $\lambda$, tolerance $\epsilon$.<br>
+<strong>INITIALIZE</strong> $\hat{\alpha} = \overline{y}$, $\hat{f}_j(x_{ij})=0$.<br>
+<strong>REPEAT</strong> $\Delta \leftarrow 0$.<br>
+ <strong>FOR</strong> $j=1,\dots,P$ <strong>DO</strong><br>
+  $\hat{f}_j^{(old)} \leftarrow \hat{f}_j$<br>
+  $\hat{f}_j (\mathbf{x}_j) \leftarrow S_{\lambda_{j}}(\mathbf{x}_j) \left[\mathbf{y} - \hat{\alpha}\cdot \mathbf{1}_n - \sum_{k \not = j} \hat{f}_k(\mathbf{x}_k) \right]$<br>
+  $\hat{f}_j (\mathbf{x}_j) \leftarrow \hat{f}_j (\mathbf{x}_j) - \frac{1}{N} \sum_{i=1}^{N} \hat{f}_j (x_{ij}) $<br>
+ <strong>END FOR</strong><br>
+<strong>UNTIL</strong> $\Delta &lt; \epsilon$<br></p>
+<p>There is a more general version for GLMs. The idea is to use IRLS with a weighted version of backfitting for working responses. (Algorithm 9.2)</p>
+<h3>Trees</h3>
+<p>While smoother provide continuous fits, we might want to consider about changes. The trick here is to partition the feature space and fit model in each region. If we split the feature space recursively, we can represent this process using a tree.</p>
+<p>The main advantage here is interpretability. So with the feature space partitioned in $M$ regions $R_1,\dots,R_M$, we can define:</p>
+<p>$$f_{c, R} (\mathbf{X}) = \sum_{m=1}^M c_m \mathrm{I}(x \in R_m)$$</p>
+<p>To estimate $f$, using squared-error loss,</p>
+<p>$$\begin{aligned} \widehat{(\mathbf{c}, \mathbf{R})} &amp;= \underset{\mathbf{c}, \mathbf{R}}{\mathrm{argmin}} \sum_{i=1}^{M} \left[y_i - f_{\mathbf{c}, \mathbf{R}}(\mathbf{x}_i) \right]^2 \\ &amp;= \underset{\mathbf{R}}{\mathrm{argmin}} \left[\underset{\mathbf{c}}{\mathrm{min}} \sum_{m=1}^{M} \sum_{i:\space\mathbf{x}_i \in R_m} (y_i - c_m)^2 \right] \end{aligned}$$</p>
+<p>Thus, for fixed $\mathbf{R}$, $\hat{c}_m = \frac{1}{|R_m|} \sum_{i \in R_m} y_i$.</p>
+<p>But defining $\hat{\mathbf{R}}$ is hard since we have to enumerate any possible partitions. Instead we pursue a greedy heuristic by recursively partitioning the features. Suppose initially, that $M=2$ and so we want to find the first partition into</p>
+<p>$$R_1(j,s) = \left\{x: x_j \leq s \right\}\space\mathrm{and}\space R_2(j,s) = \left\{x: x_j &gt; s \right\}$$</p>
+<p>Then we need</p>
+<p>$$\widehat{(\mathbf{c}, \mathbf{R})} = \underset{\mathbf{R}}{\mathrm{argmin}} \left\{ \underset{\mathbf{c}}{\mathrm{min}} \left[ \sum_{i:\space\mathbf{x}_i \in R_1} (y_i - c_1)^2 + \sum_{i:\space\mathbf{x}_i \in R_2} (y_i - c_2)^2 \right] \right\}$$</p>
+<p>This is not so bad: we just need to scan the values $x_{ij}$ to define the splitting point $s$ and select the best $R = (j,s)$</p>
+<h2>NOTES 03/26</h2>
+<p>Then we can proceed recursively until a minimum number of ovservations occurs. THis partition can, however, overfit the training data, so we add a complexity penalty:</p>
+<p>$$\widehat{(\mathbf{c}, \mathbf{R})} = \underset{\mathbf{c}, \mathbf{R}}{\mathrm{argmin}} \sum_{i=1}^{M} \left[y_i - f_{\mathbf{c}, \mathbf{R}}(\mathbf{x}_i) \right]^2 + \alpha |\mathbf{R}|$$</p>
+<p>$$\hat{R}(\alpha) = \underset{\mathbf{R}}{\mathrm{argmin}} \sum_{m=1}^{|\mathbf{R}|} \sum_{i:\space\mathbf{x}_i \in R_m} (y_i - c_m)^2 + \alpha |\mathbf{R}|$$</p>
+<p>It can be shown that for each $\alpha$ there is a unique $\hat{R}(\alpha) \subset \hat{R}(0)$. This can be found by &quot;weakest link pruning&quot;, where an internal node in the tree is collapsed in order of smallest per node inrease in data fitting loss.</p>
+<p>In practice we select $\alpha$ by cross-validation and settle with $\hat{R}(\hat{\alpha}_{CV})$</p>
+<p>For classification, i.e., if the response is categorical, we need a different loss. Instead of $\hat{c}_m$, we then have</p>
+<p>$$\hat{P}_{mk} = \frac{1}{R_m} \sum_{i \in R_m} \mathrm{I} (y_i = k)$$</p>
+<p>Define $k(m) = \underset{k}{\mathrm{argmax}} \space \hat{P}_{mk}$.</p>
+<p>And use instead of $Q_m(\mathbf{R}) = \frac{1}{|R_m|} \sum_{i \in R_m} (y_i - c_m)^2$</p>
+<ul>
+<li>Misclassification error: $\frac{1}{R_m} \sum_{i \in R_m} \mathrm{I} (y_i \not = k(m)) = 1-\hat{P}_{mk}$</li>
+<li>Gini index: $\sum_{k\not=k^{\prime}}\hat{p}_{mk}\hat{p}_{mk^{\prime}} = \sum_{k} \hat{p}_{mk} (1-\hat{p}_{mk})$</li>
+<li>Cross-entropy or deviance: $- \sum_{k} \hat{p}_{mk} \log \hat{p}_{mk}$</li>
+</ul>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

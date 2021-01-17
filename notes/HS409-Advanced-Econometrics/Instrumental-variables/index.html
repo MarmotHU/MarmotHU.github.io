@@ -1,0 +1,163 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Instrumental Variables - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Instrumental Variables</h1>
+                    2020-10-08
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>Notes</h2>
+<ul>
+<li>Motivation: Omitted variable bias
+<ul>
+<li>Accept that the estimates are biased</li>
+<li>Find a proxy for the unobservable</li>
+<li>Assume the OV doesn't change over time, and &quot;difference it away&quot;</li>
+<li><strong>Instrumental variables</strong>: with IV, you can ‘fix’ the bias without specifying its source</li>
+</ul>
+</li>
+<li>Idea: replace the actual value of the  endogenous explanatory variable with its predicted value.</li>
+<li>Requirement
+<ul>
+<li>$cov(z,x_1)\not = 0$, &quot;identifying assumption&quot;</li>
+<li>$cov(z,u_1)=0$, $z$ must be uncorrelated with the omitted variables that affect the outcome
+<center><img src=./IV.png width=60%></center>
+</li>
+</ul>
+</li>
+<li>Testing whether IV is needed
+<ul>
+<li>Wu-Hausman test: the null hypothesis is &quot;exogeneity&quot;</li>
+</ul>
+</li>
+<li>Process
+<ul>
+<li>Regress $x_1$ on the instrument and other exogenous variables
+$x_1=\pi_0+\pi_1 x_2+\pi_2 z + v_2$ (&quot;reduced form equation&quot;)</li>
+<li>Make sure that $z$ is statistically significant</li>
+<li>Estimate $\hat{x}_1$</li>
+<li>Regress $y$ on $\hat{x}_1$ and the exogenous variables (but not the IV)
+$y=\beta_0+\beta_1 \hat{x}_1 + \beta_2 x_2 + u_1$ (&quot;structural equation&quot;)</li>
+</ul>
+</li>
+<li>Limitation: IV results in standard errors that are larger, sometimes much larger than with OLS. In large samples, the IV estimate is less biased than OLS. But in small samples, IV is never unbiased</li>
+<li>IV with a weak instrument
+<ul>
+<li>The weaker the correlation between the instrument and the endogenous explanatory variable, the less precision IV estimates have</li>
+<li>IV estimates can also be biased if $x$ and $z$ are very weakly correlated</li>
+<li>Staiger &amp; Yogo recommend using a tougher standard than p&lt;.05 for IV: Require <strong>t-stat&gt;3.2</strong> (or <strong>F&gt;10</strong>, if multiple IV)</li>
+</ul>
+</li>
+<li>Multiple instruments for multiple endogenous explanatory variables
+<ul>
+<li>There is one first-stage equation for each endogenous explanatory variable. Each such equation includes all the instruments as regressors</li>
+<li>The second-stage equation replaces each endogenous explanatory variable with its predicted value</li>
+</ul>
+</li>
+<li>The test of over-identifying restrictions
+<ul>
+<li>If (and only if) you have more instruments than endogenous explanatory variables, your system is &quot;over-identified&quot; (a good thing)</li>
+<li>Test the hypothesis that at least one instrument is not exogenous</li>
+<li>If the number of instruments equals the number of endogenous explanatory variables ,your system is &quot;just-identified&quot;, and you can’t perform this test</li>
+</ul>
+</li>
+<li>Other issues
+<ul>
+<li>Binary: two-stage residual inclusion (2SRI) (e.g. Terza 2008)</li>
+<li>Another way to test validity of IV (Pizer 2016)</li>
+</ul>
+</li>
+</ul>
+<h2>IV in Stata</h2>
+<ul>
+<li>IV regression</li>
+</ul>
+<pre><code>ivregress 2sls ${DV} (${biasedIDV} = ${IV}), first
+</code></pre>
+<p>By adding the option &quot;first&quot; the Stata output will include both the first and second stages.</p>
+<pre><code>estat endogenous
+</code></pre>
+<ul>
+<li>Post estimation</li>
+</ul>
+<p>Wu-Hausman test</p>
+<pre><code>estat endogenous
+// H0: all the explanatory variables are exogenous. 
+// If reject, 2SLS is necessary, otherwise OLS is good enough
+</code></pre>
+<p>Overidentification test</p>
+<pre><code>estat overid 
+// Overidentifying restrictions test. 
+// H0: all IVs are exogenous (exclusion restriction)
+estat firststage 
+// Weak instruments test. 
+// H0: instruments are weakly correlated with the endogenous variable
+</code></pre>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

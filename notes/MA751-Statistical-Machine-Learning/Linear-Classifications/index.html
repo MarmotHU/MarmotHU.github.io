@@ -1,0 +1,139 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Linear Classifications - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Linear Classifications</h1>
+                    2020-02-18
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>NOTES 02/13</h2>
+<h3>Two-Class Logistic Regression</h3>
+<p>So far, we had</p>
+<p>$$y_{i|\mathbf{X}_i} \sim \mathrm{N}(\beta_0+\mathbf{X}_i\beta, \sigma^2)$$</p>
+<p>To predict $y_0$ given $\mathbf{X}_0$, we have</p>
+<p>$$f_\tau(\mathbf{X}_0)=\beta_0+\mathbf{X}_i\beta$$</p>
+<p>What if $y$ is discrete, i.e. $y\in\left\{1,0\right\}$?</p>
+<p>Since $f_\tau(\mathbf{X}_0)=\beta_0+\mathbf{X}_i\beta \not \in \left\{1,0\right\}$ in most cases, we need to slightly change the formula:</p>
+<p>$$f_\tau(\mathbf{X}_0)=\mathrm{I}\left[\beta_0+\mathbf{X}_i\beta&gt;0.5\right]\mathrm{ , or}$$</p>
+<p>$$f_\tau(\mathbf{X}_0)=\mathrm{I}\left[\pi(\beta_0+\mathbf{X}_i\beta)&gt;0.5\right]$$</p>
+<p>More generally, we assume $y_{i|\mathbf{X}_i} \sim \mathrm{Bernoulli‎}(\pi(\beta_0+\mathbf{X}_i\beta)), \pi:\mathbb{R} \rightarrow \left[0,1\right]$. In general, $\pi$ is taken to be the CDF. The most common choice is</p>
+<p>$$\pi(u)=\frac{e^u}{1+e^u}=\mathrm{logit}^{-1}(u)$$</p>
+<p>which is the CDF of standard logistic distribution.</p>
+<p>The maximum likelihood estimate (MLE) is</p>
+<p>$$\begin{aligned} \hat{\beta}_{ML} &amp;= \argmax_{\beta} \mathrm{log} \space \mathbb{P}(y|\mathbf{X}) \\ &amp;= \argmax_{\beta} \sum_{i=1}^n \left[y_i\space\mathrm{log}\pi(\beta_0+\mathbf{X}_i\beta)+(1-y_i)\space\mathrm{log}(1-\pi(\beta_0+\mathbf{X}_i\beta))\right] \\ &amp;= \argmax_{\beta} \sum_{i=1}^n \left[y_i\space(\beta_0+\mathbf{X}_i\beta)-\mathrm{log}(1+e^{\beta_0+\mathbf{X}_i\beta})\right] \\ &amp;\space\space\space\space\space\space\space\space\space\space\space\space\space\space\space\space\space\space\space\space\approx -\frac{1}{2}\sum_{i=1}^n \frac{(y_i-\mathrm{logit}^{-1}(\beta_0+\mathbf{X}_i\beta))^2}{p(\mathbf{X}_i)(1-p(\mathbf{X}_i))} \\ &amp;= \argmin_{\beta} \sum_{i=1}^n \frac{(y_i-\mathrm{logit}^{-1}(\beta_0+\mathbf{X}_i\beta))^2}{p(\mathbf{X}_i)(1-p(\mathbf{X}_i))} \end{aligned}$$</p>
+<p>where $\mathrm{logit}^{-1}(\beta_0+\mathbf{X}_i\beta)$ is $\mathbb{E}\left[y_i|\mathbf{X}_i\right]$.</p>
+<h3>Multi-Class Logistic Regression</h3>
+<p>Now let $y_i$ to have more than 2 classes. We say $G_i \in \left\{1,2,\dots,k\right\} \sim \mathrm{Categorical}(\mathbf{\pi})$. Thus, we have $\mathbb{P}(G_i=j)=\pi_j$ with $\sum_{j=1}^k \pi_j=1$. And we have $\mathbf{y}_i \sim \mathcal{MN}(1;\pi)$:</p>
+<p>$$\mathbf{y}_i=\begin{bmatrix} 0 \\ \vdots \\ 1 \\ \vdots \\ 0 \end{bmatrix}, \space y_{ij} = \begin{cases} 0, &amp; G_i \not = j,\\ 1, &amp; G_i  = j \end{cases} $$</p>
+<p>Now define</p>
+<p>$$\pi_j(\mathbf{X}_i)=\pi(\beta_{0,j}+\mathbf{X}\beta_j)=\frac{e^{\beta_{0,j}+\mathbf{X}\beta_j}}{1+\sum_{l=1}^k e^{\beta_{0,l}+\mathbf{X}\beta_l}}$$</p>
+<p>$$\pi_k(\mathbf{X}_i)=\frac{1}{1+\sum_{l=1}^k e^{\beta_{0,l}+\mathbf{X}\beta_l}}$$</p>
+<p>Thus, we have $\mathrm{log}\frac{\pi_j(\mathbf{X}_i)}{\pi_k(\mathbf{X}_i)}=\beta_{0,l}+\mathbf{X}\beta_l$. And $\hat{\beta}_{ML}$ can be expressed by</p>
+<p>$$\begin{aligned} \hat{\beta}_{ML} &amp;= \argmax_{\beta} \mathrm{log} \space \mathbb{p}(\mathbf{y}_i|\mathbf{X}_i) \\ &amp;= \argmin_{\beta} -\sum_{i=1}^n\sum_{j=1}^k y_{ij} \mathrm{log}\pi_j(\mathbf{X}_i) \\ &amp;= \argmin_{\beta} \sum_{i=1}^n -\sum_{j=1}^k y_{ij} \mathrm{log}\pi_j(\mathbf{X}_i) \\ &amp;= \mathrm{D}_{kl}(\mathbf{y}_i || \pi(\mathbf{X}_i)) \space\space\space\mathrm{&quot;Kullback-Leibler\space divergence&quot;} \end{aligned}$$</p>
+<p>For logistic regressions, we can also use regularization to avoid overfitting:</p>
+<p>$$\begin{aligned} \hat{\beta}_{ML} &amp;= \argmax_{\beta} \sum_{i=1}^n \left[y_i\space(\beta_0+\mathbf{X}_i\beta)-\mathrm{log}(1+e^{\beta_0+\mathbf{X}_i\beta})\right] + \lambda ||\beta||_q^q \end{aligned}$$</p>
+<h2>NOTES 02/18</h2>
+<h3>Bayes Classifier</h3>
+<p>When using Bayes Classifiers to predict $y|\mathbf{X}$, we can do some modifications to take into account the distribution of X dots ($\mathbf{X}|y$).</p>
+<p>Let's say $G_i \in \left\{1,2,\dots,k\right\} \sim \mathrm{Categorical}(\mathbf{\pi})$, we have $\mathbb{P}(G_i=j)=\pi_j$ with $\sum_{j=1}^k \pi_j=1$. Thus,</p>
+<p>$$\begin{aligned} f_\tau(\mathbf{X}) &amp;= \argmax_{j} \space \mathbb{P}(G=j|\mathbf{X}) \\ &amp;= \argmax_{j} \space \frac{\mathbb{P}(\mathbf{X}|G=j)\mathbb{P}(G=j)}{\sum_{l=1}^k\mathbb{P}(\mathbf{X}|G=l)(\mathbb{G}=l)} \\ &amp; \Rightarrow \argmax_{j} \space \mathbb{P}(\mathbf{X}|G=j)\mathbb{P}(G=j) \\ &amp;= \argmax_{j} \space \pi_j \phi(\mathbf{X};\mu_j, \Sigma_j) \end{aligned} $$</p>
+<p>Assume that $\mathbf{X}|G=j \sim \mathrm{N}(\mu_j, \Sigma_j)$. Then we can find some good estimates for $\pi_j, \mu_j, \Sigma_j$:</p>
+<p>$$\pi_j=\mathrm{proportion \space of \space obs \space of \space label \space} j$$</p>
+<p>$$\mu_j=\mathrm{sample\space mean\space of\space obs\space with\space label\space} j$$</p>
+<p>$$\Sigma_j=\mathrm{sample\space sd\space of\space obs\space with\space label\space} j$$</p>
+<h3>Decision Boundary $(k=2)$</h3>
+<h4>Quadratic Discriminant Analysis (QDA)</h4>
+<p>Suppose that $\mathbb{P}(\mathbf{X}|G=1)\mathbb{P}(G=1)=\mathbb{P}(\mathbf{X}|G=2)\mathbb{P}(G=2)$. Thus, we have</p>
+<p>$$\begin{aligned} 0 &amp;= \mathrm{log}\frac{\pi_1 \phi(\mathbf{X};\mu_1, \Sigma_1)}{\pi_2 \phi(\mathbf{X};\mu_2, \Sigma_2)} \\ &amp;= -\frac{1}{2}\mathbf{X}^T(\Sigma_1^{-1}-\Sigma_2^{-1})\mathbf{X}-\mathbf{X}^T(\Sigma_1^{-1}\mu_1-\Sigma_2^{-1}\mu_2) \\ &amp;\space\space\space\space- \frac{1}{2}\mu_1^T\Sigma_1^{-1}\mu_1 + \frac{1}{2} \mu_2^T\Sigma_2^{-1}\mu_2 + \mathrm{log}\frac{\pi_1}{\pi_2}+\mathrm{log}\frac{|\Sigma_2|^{1/2}}{|\Sigma_1|^{1/2}} \end{aligned}$$</p>
+<h4>Linear Discriminant Analysis (LDA)</h4>
+<p>If we enforce $\Sigma_1=\Sigma_2$, we get a LDA:</p>
+<p>$$0 = -\mathbf{X}^T(\Sigma_1^{-1}\mu_1-\Sigma_2^{-1}\mu_2) - \frac{1}{2}(\mu_1^T\Sigma_1^{-1}\mu_1 - \mu_2^T\Sigma_2^{-1}\mu_2) + \mathrm{log}\frac{\pi_1}{\pi_2}$$</p>
+<p>An example from scikit-learn:</p>
+<center><img src="https://scikit-learn.org/stable/_images/sphx_glr_plot_lda_qda_001.png" width='70%'></center>
+<h2>NOTES 02/20</h2>
+<p>Suppose that $\mathbf{x}_i|G_i=j \space \overset{i.i.d}{\sim} \mathrm{N}(\mu_i, \Sigma_i)$.</p>
+<p>Thus, $\mathbb{P}(y, \mathbf{x}) = \mathbb{P}(y) \mathbb{P}(\mathbf{x}|y)=\prod_{i=1}^{k}\left(\prod_{j=1}^{k}\pi_j^{y_{ij}}\right)\left(\prod_{j=1}^k \phi(x_{i};\mu_j,\Sigma_j)^{y_{ij}} \right)$</p>
+<p>$$\begin{aligned}\mathbb{P}(G_i=j|\mathbf{x}_i)&amp;=\frac{\pi_j \phi(\mathbf{x}_i;\mu_j, \Sigma_j)}{\sum_{l=1}^k \pi_l \phi(\mathbf{x_i};\mu_l, \Sigma_l)}\\&amp;=\frac{\frac{\pi_j}{\pi_k}\frac{\phi(\mathbf{x}_i;\mu_j, \Sigma_j)}{\phi(\mathbf{x}_i;\mu_k, \Sigma_k)}}{1+\sum_{l=1}^{k-1} \frac{\pi_l}{\pi_k}\frac{\phi(\mathbf{x}_i;\mu_l, \Sigma_l)}{\phi(\mathbf{x}_i;\mu_k, \Sigma_k)}} \\&amp;=\frac{\exp\left\{\log \frac{\pi_j}{\pi_k} +\log \phi(\mathbf{x}_i;\mu_j,\Sigma_j)-\log \phi(\mathbf{x}_i;\mu_k, \Sigma_k) \right\}}{1+\sum_{l=1}^{k-1}\exp \left\{\log \frac{\pi_l}{\pi_k} \log \phi(\mathbf{x}_i;\mu_l,\Sigma_l)-\log\phi(\mathbf{x}_i;\mu_k,\Sigma_k) \right\}} \end{aligned}$$</p>
+<p>Since</p>
+<p>$$\log \phi (\mathbf{x}; \mu, \Sigma) = - \frac{P}{2} \log 2 \pi - \frac{1}{2} \log |\Sigma| - \frac{1}{2} (\mathbf{x} - \mu)^{\top} \Sigma^{-1} (\mathbf{x} - \mu)$$</p>
+<p>we can make the decomposition as follows:</p>
+<p>$$\begin{aligned} &amp;\exp \left\{\log \frac{\pi_l}{\pi_k} \log \phi(\mathbf{x}_i;\mu_l,\Sigma_l)-\log\phi(\mathbf{x}_i;\mu_k,\Sigma_k) \right\}  \\ =&amp; \exp \left\{\log \frac{\pi_j}{\pi_k} - \frac{1}{2} \log \frac{|\Sigma_j|}{|\Sigma_k|} - \frac{1}{2} (\mathbf{x}_i - \mu_j)^{\top} \Sigma^{-1} (\mathbf{x}_i - \mu_j) + \frac{1}{2} (\mathbf{x}_i - \mu_k)^{\top} \Sigma^{-1} (\mathbf{x}_i - \mu_k) \right\} \end{aligned}$$</p>
+<p>Since $\Sigma = \mathrm{UDU}^{\top} \Rightarrow \Sigma^{-1} = \mathrm{UD}^{-1} \mathrm{U}^{\top}$, then</p>
+<p>$$\log |\Sigma| = \log |\mathrm{U}| |\mathrm{D}| |\mathrm{U}^{\top}| = \log |\mathrm{D}| = \sum_{i=1}^{p} \log d_i$$</p>
+<p>$$\mathbf{X}^{\top} \Sigma \mathbf{X} = \mathbf{X}^{\top} \mathrm{UD}^{-1} \mathrm{U}^{\top} \mathbf{X} = \left[ \mathrm{D}^{-1/2} \mathrm{U}^{\top} \mathbf{X} \right]^{\top} \left[ \mathrm{D}^{-1/2} \mathrm{U}^{\top} \mathbf{X}\right] = \mathbf{Z}^{\top} \mathbf{Z}$$</p>
+<p>We have $\mathbf{X} \sim \mathrm{N}(\mathbf{0}, \Sigma)$, $\mathbf{Z}=\mathrm{D}^{-1/2} \mathrm{U}^{\top} \mathbf{X} \sim \mathrm{N}(\mathbf{0}, \mathbf{I}_p)$</p>
+<h3>Ridge logistic regression</h3>
+<p>$$(\hat{\beta_0}, \hat{\beta}) = \argmax_{\beta_0, \beta} \sum_{i=1}^{n} y_i (\beta_0 + \mathbf{x}_i^{\top} \beta) - \log (1 + e^{\beta_0 + \mathbf{x}_i \beta}) - \frac{\lambda}{2} \beta^{\top} \beta = \argmax_{\beta_0, \beta} \space l(\beta_0, \beta)$$</p>
+<p>$$U(\beta_0, \beta)=\frac{\partial l}{\partial(\beta_0, \beta)}=\begin{bmatrix} \mathbf{1}_n &amp; \mathbf{X} \end{bmatrix} (\bar{y}-\pi(\beta_0,\beta)) - \lambda \begin{bmatrix} 0 \\ \beta \end{bmatrix}$$</p>
+<p>Set $\widetilde{\mathbf{X}}=\begin{bmatrix} \mathbf{1}_n &amp; \mathbf{X} \end{bmatrix}$.</p>
+<p>$$J_u=\frac{\partial^2 l}{\partial(\beta_0, \beta)\partial(\beta_0, \beta)^{\top}}=-\widetilde{\mathbf{X}}^{\top}\mathrm{Diag}\left\{\pi_i(\beta_0,\beta)[1-\pi_i(\beta_0,\beta)]\right\}\widetilde{\mathbf{X}}-\lambda\begin{bmatrix}0 &amp; 0 \\ 0 &amp; \mathbf{I}_p \end{bmatrix}$$</p>
+<p>Therefore,</p>
+<p>$$\begin{aligned} -J_u^{(t)} \begin{bmatrix} \beta_0^{(t+1)} \\ \beta^{(t+1)} \end{bmatrix} &amp;= (\widetilde{\mathbf{X}}^{\top} w^{(t)} \widetilde{\mathbf{X}}^{\top} + \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; \mathbf{I}_p \end{bmatrix}) \begin{bmatrix} \beta_0^{(t)} \\ \beta^{(t)} \end{bmatrix} + \widetilde{\mathbf{X}}^{\top} w^{(t)} w^{(t)^{-1}} (y - \pi^{(t)}) - \lambda \begin{bmatrix} 0 \\ \beta^{(t)} \end{bmatrix} \\ &amp;= \widetilde{\mathbf{X}}^{\top} w^{(t)} \left[\widetilde{\mathbf{X}} \begin{bmatrix} \beta_0^{(t+1)} \\ \beta^{(t+1)} \end{bmatrix} + w^{(t)^{-1}} (y - \pi^{(t)}) \right] - \lambda \begin{bmatrix} 0 \\ \beta^{(t)} \end{bmatrix} \end{aligned}$$</p>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

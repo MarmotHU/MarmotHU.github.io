@@ -1,0 +1,184 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Review of Ordinary Least Squares - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Review of Ordinary Least Squares</h1>
+                    2020-08-27
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>Assumptions for OLS</h2>
+<ul>
+<li>
+<p><strong>MLR 1. Linear in parameters</strong>
+$y=B_0+B_1 x_1+ B_2 x_2 + B_k x_k + u$
+$B_0$ etc. are the unknown parameters of interest and $u$ is an unobservable random error.</p>
+</li>
+<li>
+<p><strong>MLR 2: Random sampling</strong></p>
+</li>
+<li>
+<p><strong>MLR 3: No perfect collinearity</strong></p>
+</li>
+<li>
+<p><strong>MLR 4: Zero conditional mean</strong>
+$E[u|x_1,x_2,..., x_k]=0$
+The error $u$ has an expected value of zero, given any values of the independent variables. All factors in the error term are uncorrelated with the explanatory variables. If this assumption holds, we have <strong>exogenous explanatory variables ($\pmb{\hat{\beta}_{OLS}}$ is unbiased)</strong></p>
+</li>
+<li>
+<p><strong>MLR 5: Homoskedasticity</strong>
+$Var(u|x_1,x_2,...,x_k)=s^2$
+The variance of the error term, conditional on the explanatory variables, is the same for all combinations of outcomes of the explanatory variables.
+These 5 are the <strong>Gauss-Markov assumptions ($\pmb{\hat{\beta}_{OLS}}$ is BLUE)</strong></p>
+</li>
+<li>
+<p><strong>MLR 6: Normality of errors</strong>
+$u\sim N(0,s^2)$
+($\pmb{\hat{\beta}_{j} \sim N [ \beta_j, Var(\hat{\beta_j}) ]}$)</p>
+</li>
+</ul>
+<h2>Test OLS assumptions</h2>
+<ul>
+<li><strong>Test MLR 1: linearity</strong></li>
+</ul>
+<pre><code>graph matrix ${first var}-${last var}, half
+twoway (scatter ${y}, ${x}) (lfit ${y}, ${x}) (lowess ${y}, ${x})
+</code></pre>
+<p>The lowess would fit regressions in small “windows” around each value of one dependent variable and connects the fitted values of y with lines, giving a smooth fitted curve which can help us detect for nonlinearity.</p>
+<ul>
+<li><strong>Test MLR 2: random sampling</strong></li>
+</ul>
+<p>To test this assumption, we need to check the sampling design of our data.</p>
+<ul>
+<li><strong>Test MLR 3: no perfect collinearity</strong></li>
+</ul>
+<p>We can still use the correlations for each pair of variables to see whether the mortality rate is linearly associated with other variables.</p>
+<pre><code>graph matrix ${first var}-${last var}, half
+</code></pre>
+<p>Multicollinearity would inflate the estimation of the standard error of the variable and then result in insignificant estimated parameter. We use VIF (variance inflation factor) to depict the severity of the multicollinearity. Even though there is well-defined threshold, a VIF value greater than 10.0 suggests the variable has an issue of multicollinearity.</p>
+<pre><code>estat vif
+</code></pre>
+<ul>
+<li><strong>Test MLR 4: zero conditional mean</strong></li>
+</ul>
+<p>The main problems that cause the zero conditional mean assumption to fail in a regression model are:</p>
+<ul>
+<li>
+<p>Omitted variable</p>
+<ul>
+<li>We fail to include some important variables</li>
+<li>The estimation would be biased if the omitted variable is correlated with $x_i$</li>
+<li>Difficult to be tested by statistics but can be solved by
+<ul>
+<li>Conducting random trials</li>
+<li>Adding instrument variables</li>
+<li>Utilizing panel data</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Functional form misspecification</p>
+<ul>
+<li>E.g., if the true model is $y=\beta_0+\beta_1 x_1+\beta_2 x_2+\beta_3 x_2^2+u$, but we ignored the quadratic term and specified as $y=\beta+\beta_1 x_1+\beta_2 x_2+u$</li>
+<li>The information represented by $x_2^2$ will be captured by $u$, which would make $x_2$ correlated with $u$ and then violates MLR 4</li>
+<li>Ramsey’s regression specification error test (RESET)</li>
+</ul>
+</li>
+<li>
+<p>Endogeneity of one or more independent variables.</p>
+<ul>
+<li>Independent variables are “exogenous” if they do not correlate with the error term, which is a good thing.  If they do, they are considered endogenous.</li>
+</ul>
+</li>
+<li>
+<p>Measurement error of one or more independent variables.</p>
+</li>
+</ul>
+<p>The purpose of Ramsey’s RESET is to test if there may be omitted squared, cubic, biquadratic forms of explanatory variables. The idea is that if the original model satisfies MLR 4, then no nonlinear functions of the independent variables should be significant if added to the model.</p>
+<pre><code>estat ovtest
+</code></pre>
+<ul>
+<li><strong>Test MLR 5: homoskedasticity</strong></li>
+</ul>
+<p>We can detect heteroskedasticity by plotting the residuals against each independent variable or the predicted values. For homoskedasticity, there should be no obvious pattern in residuals’ distribution, indicating that the variance of the residuals is constant.</p>
+<pre><code>rvfplot //residuals versus fitted values
+rvpplot varname//residuals versus predictors
+</code></pre>
+<p>More precise test for heteroskedasticity: White test ($H_0$:homoskedasticity)</p>
+<pre><code>estat imtest, white
+</code></pre>
+<ul>
+<li><strong>Test MLR 6: $\pmb{u\sim N(0,s^2)}$</strong></li>
+</ul>
+<p>The error term should be normally distributed with zero mean and constant variance. MLR 6 is much stronger than previous assumptions.</p>
+<pre><code>histogram r, normal kdensity
+qnorm r
+</code></pre>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

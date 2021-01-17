@@ -1,0 +1,157 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Boosting - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Boosting</h1>
+                    2020-04-07
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>NOTES 03/31</h2>
+<p>The main goal of Boosting is to combine the outputs from iteratively enhanced &quot;weak&quot; classifiers to produce a good &quot;committee&quot; classifier.</p>
+<p>Let us start describing &quot;AdaBoost&quot;. Consider a binary output $y \in \left\{ -1, 1 \right\}$ from feature vector $\mathbf{X}$. The training data is $\tau = \left\{x_i, y_i\right\}_{i = 1,\dots,N}$</p>
+<p><strong>Algorithm: AdaBoost</strong><br>
+<strong>INPUT</strong>: training data $\tau$, weak classifer<br>
+<strong>INITIALIZE</strong>: weights $w_i = \frac{1}{N}, i = 1,\dots,N$<br>
+<strong>FOR</strong> $m = 1,\dots, M$ <strong>DO</strong> <br>
+ Fit a classifier $G_M$ to training data $\tau$ using $w$ as weights<br></p>
+<p>$$\begin{aligned} \alpha_m &amp;= \log \frac{\sum_{i=1}{N} w_i \mathrm{I}(y_i = G_m(X_i))}{\sum_{i=1}{N} w_i \mathrm{I}(y_i \not = G_m(X_i))} \\ &amp;= \mathrm{logit} \frac{\sum_{i=1}^{N} w_i \mathrm{I}(y_i = G_m(X_i))}{\sum_{i=1}^{N} w_i} \\ &amp;= - \mathrm{logit} \frac{\sum_{i=1}^{N} w_i \mathrm{I}(y_i \not = G_m(X_i))}{\sum_{i=1}^{N} w_i} \space\space , \left(\frac{\sum_{i=1}^{N} w_i \mathrm{I}(y_i \not = G_m(X_i))}{\sum_{i=1}^{N} w_i}=\overline{\mathrm{err}}\right) \end{aligned}$$</p>
+<p> <strong>FOR</strong> $i=1,\dots,N$ <strong>DO</strong>:<br>
+  $w_i \leftarrow w_i \cdot \mathrm{exp} \left\{\alpha_m \mathrm{I}(y_i \not = G_m(X_i)) \right\}$<br>
+ <strong>END</strong><br>
+<strong>END</strong><br></p>
+<p>$f(\mathbf{x}) = \mathrm{sgn} \left\{ \sum_{m=1}^M \alpha_m G_m(\mathbf{x})\right\}$, &quot;committee&quot;</p>
+<p>Note that if $y_i=G_m(X_i)$ then $w_i$ is unchanged; but otherwise, if $\alpha_m&gt;0$ (less misclassifications) $w_i$ goes up, so $G_{m+1}$ will focus on errors; if $\alpha_m &lt; 0$ (more misclassifications), $w_i$ goes down, so $G_{m+1}$ will focus on right\ classifications.</p>
+<p>But why does it work? The last step shows that the committee rule looks like an additive model. Let us formulize this. Our prediction rule is:</p>
+<p>$$f_{\beta, \gamma}(\mathbf{X})=\sum_{m=1}^{M}\beta_m G(\mathbf{X}; \gamma_m)$$</p>
+<p>e.g., for spline regression, $\gamma_m$ are powers and knots.</p>
+<p>Ignoring model complexity for now, we can estimate $\beta$ and $\gamma$ by minimizing data fitting loss with respect to loss L:</p>
+<p>$$\begin{aligned} &amp;\underset{\left\{(\beta_m, \gamma_m) \right\}_{k=1,\dots,M}}{\mathrm{min}} \sum_{i=1}^{N} \mathrm{L}\left(y_i, \sum_{m=1}^{M}\beta_m G(\mathbf{x}_i; \gamma_m)\right) \\ =&amp; \underset{\left\{(\beta_m, \gamma_m) \right\}_{k=1,\dots,M-1}}{\mathrm{min}} \space \underset{\beta_M, \gamma_M}{\mathrm{min}} \sum_{i=1}^{N} \mathrm{L}\left(y_i, \sum_{k=1}^{M-1}\beta_k G(\mathbf{x}_i; \gamma_k)+\beta_M G(\mathbf{x}_i; \gamma_M)\right) \end{aligned}$$</p>
+<p>In general it is hard and computationally expensive! But we can adopt a simple greedy heuristic: iteratively fit $\beta_m$ and $\gamma$, and fix the estimated values:</p>
+<p>$$(\hat{\beta}_1, \hat{\gamma}_1) = \underset{\beta_1,\gamma_1}{\mathrm{argmin}} \sum_{i=1}^{N} \mathrm{L} \left( y_i, \beta_1 G(\mathbf{x}_i, \gamma_1) \right)$$</p>
+<p>$$(\hat{\beta}_2, \hat{\gamma}_2) = \underset{\beta_2,\gamma_2}{\mathrm{argmin}} \sum_{i=1}^{N} \mathrm{L} \left( y_i, \hat{\beta}_1 G(\mathbf{x}_i, \hat{\gamma}_1) + \beta_2 G(\mathbf{x}_i, \gamma_2) \right)$$</p>
+<p>$$\dots\dots$$</p>
+<p><strong>Algorithm: Forward Stagewise</strong><br>
+<strong>INPUTS</strong>: $\tau$, $G$, number of iteration $M$<br>
+<strong>INITIALIZE</strong>: $f_0(\mathbf{x}_i)=0$, $i=1,\dots,N$<br>
+<strong>FOR</strong> $m=1,\dots,M$ <strong>DO</strong><br>
+ $(\hat{\beta}_m, \hat{\gamma}_m) = \underset{\beta_m,\gamma_m}{\mathrm{argmin}} \sum_{i=1}^{N} \mathrm{L} \left( y_i, f_{m-1}(\mathbf{x}_i) + \beta_m G(\mathbf{x}_i, \gamma_m) \right)$<br>
+ $f_m(\mathbf{x}_i) = f_{m-1}(\mathbf{x}_i) + \beta_m G(\mathbf{x}_i, \gamma_m)$<br>
+<strong>END</strong><br>
+$\hat{f}(\mathbf{x})=\sum_{m=1}^{M} \hat{\beta}_m G(\mathbf{x};\hat{\gamma}_m)$<br></p>
+<p>Example: binary classification with $\mathrm{L}(y, f(\mathbf{x}))=e^{-y f(\mathbf{x})}$, &quot;exponential loss&quot;. In this case, the main update requires:</p>
+<p>$$\begin{aligned} &amp;\underset{\beta_m, \gamma_m}{\mathrm{min}} \sum_{i=1}^{N} \mathrm{exp} \left\{-y_i \left[f_{m-1}(\mathbf{x}_i) + \beta_m G(\mathbf{x}_i;\gamma_m) \right] \right\} \\ =&amp; \underset{\beta_m, \gamma_m}{\mathrm{min}} \sum_{i=1}^{N} e^{-y_i f_{m-1}(\mathbf{x}_i)} \mathrm{exp} \left\{-y_i \left[\beta_m G(\mathbf{x}_i;\gamma_m) \right] \right\}\end{aligned}$$</p>
+<p>where $e^{-y_i f_{m-1}(\mathbf{x}_i)} = w_i^{(m)}$ and $\mathrm{exp} \left\{-y_i \left[\beta_m G(\mathbf{x}_i;\gamma_m) \right] \right\} = \mathrm{L}(y_i, \beta_m G(\mathbf{x}_i;\gamma_m))$</p>
+<p>We can now make another approximation by splitting it into:</p>
+<p>$$\hat{\gamma}_m = \underset{\gamma_m}{\mathrm{argmin}} \sum_{i=1}^{N} w_i^{(m)} \mathrm{L}(y_i, G(\mathbf{x}_i;\gamma_m))$$</p>
+<p>$$\hat{\beta}_m = \underset{\beta_m}{\mathrm{argmin}} \sum_{i=1}^{N} w_i^{(m)} \mathrm{L}(y_i, \beta_m G(\mathbf{x}_i;\hat{\gamma}_m))$$</p>
+<p>For the second step, for instance,</p>
+<p>$$h(\beta_m) = \sum_{i=1}^N w_i^{(m)}e^{-y_i g_i \beta_m}$$</p>
+<p>$$\begin{aligned} h^{\prime}(\beta_m) &amp;= \sum_{i=1}^N w_i^{(m)}(-y_i g_i) e^{-y_i g_i \beta_m} \\ &amp;= \sum_{i: y_i=g_i} - w_i^{(m)}e^{-\beta_m} + \sum_{i: y_i\not=g_i} w_i^{(m)}e^{\beta_m} \end{aligned}$$</p>
+<p>Thus $h^{\prime}(\hat{\beta}_m)=0$ implies:</p>
+<p>$$\hat{\beta}_m = \frac{1}{2} \log \frac{\sum_{i: y_i=g_i} w_i^{(m)}e^{\beta_m}}{\sum_{i: y_i\not=g_i} w_i^{(m)}e^{\beta_m}}$$</p>
+<p>Moreover, when updating $f_m(\mathbf{x}_i)$</p>
+<p>$$f_m(\mathbf{x}_i) = f_{m-1}(\mathbf{x}_i) + \hat{\beta}_m G(\mathbf{x}_i; \hat{\gamma}_m)$$</p>
+<p>$$w_i^{(m+1)} = e^{-y_if_m(\mathbf{x}_i)}=e^{-y_i f_{m-1}(\mathbf{x}_i)} \cdot e^{-y_i \hat{\beta}_m G(\mathbf{x}_i; \hat{\gamma}_m)}$$</p>
+<p>$-y_i G(\mathbf{x}_i;\hat{\gamma}_m)=2 \space \mathrm{I}(y_i \not = G(\mathbf{x}_i;\hat{\gamma}_m)) -1$, so, with $\alpha_m=2 \hat{\beta}_m$</p>
+<p>$$w_i^{(m+1)}=w_i^{(m)}e^{\alpha_m \space \mathrm{I}(y_i \not = G(\mathbf{x}_i;\hat{\gamma}_m))}e^{-\hat{\beta}_m}$$</p>
+<p>which is equivalent to AdaBoost ($w_i^{(m)}e^{\alpha_m \space \mathrm{I}(y_i \not = G(\mathbf{x}_i;\hat{\gamma}_m))}$).</p>
+<p>Example: Regression Trees</p>
+<p>$$G(\mathbf{x};\beta,\mathbf{R}) = \sum_{j=1}^{|\mathbf{R}|} \beta_j \mathrm{I}(\mathbf{x} \in R_j)$$</p>
+<p>In this case, $f(\mathbf{x})=\sum_{m=1}^{M}G(\mathbf{x}_i;\gamma_m)$. Since the basis coefficients are non-identifiable, FSAM proceeds with</p>
+<p>$$\hat{\gamma}_m = \underset{\gamma_m}{\mathrm{argmin}} \sum_{i=1}^{N} \mathrm{L}(y_i, f_{m-1}(\mathbf{x}_i)+G(\mathbf{x}_i;\gamma_m))$$</p>
+<p>with $\mathrm{L}(y_i, f_{m-1}(\mathbf{x}_i)) = e^{-yf(\mathbf{x})}$, &quot;Boosting Tree&quot;.</p>
+<h2>NOTES 04/02</h2>
+<p>If the goal is $\underset{f}{\mathrm{min}}\sum_{i=1}^{N} \mathrm{L}(y_i, f(\mathbf{x}_i))$, then a numerical optimization procedure uses the negative gradient to iterate:</p>
+<p>$$f_m(\mathbf{x}_i) = f_{m-1}(\mathbf{x}_i) + \hat{\beta}_m g_{im}$$</p>
+<p>where $g_{im} = -\frac{\partial \mathrm{L}(y_i, f(\mathbf{x}_i))}{\partial f(\mathbf{x}_i)} \Big|_{f=f_{m-1}}$</p>
+<p>We define</p>
+<p>$$\hat{\beta}_m = \underset{\beta_m}{\mathrm{argmin}} \sum_{i=1}^{N} \mathrm{L} (y_i, f_{m-1}(\mathbf{x}_i + \beta_m g_{im}))$$</p>
+<p>This is familar, and similar to FSAM:</p>
+<p>$$(\hat{\beta}_m, \hat{\gamma}_m) = \underset{\beta_m,\gamma_m}{\mathrm{argmin}} \sum_{i=1}^{N} \mathrm{L} \left( y_i, f_{m-1}(\mathbf{x}_i) + \beta_m G(\mathbf{x}_i, \gamma_m) \right)$$</p>
+<p>Let us take regression trees; in this case we just need to optimize $\gamma_m=(\beta_m, R_m)$, i.e., the basis coefficiens are not identifiable. We can then &quot;mimic&quot; gradient descent by fitting trees that are close to the (negative) gradient. For instance, using squared error loss:</p>
+<p>$$\begin{aligned} \hat{\gamma}_m &amp;\approx \underset{\gamma_m}{\mathrm{argmin}} \sum_{i=1}^{N} \left[g_{im} - G(\mathbf{x}_i;\gamma_m) \right]^2 \\ &amp;= \underset{\beta_m,\mathbf{R}_m}{\mathrm{argmin}} \sum_{j=1}^{|R_{jm}|} \sum_{i \in R_{jm}} (g_{im}-\beta_{jm})^2 \end{aligned}$$</p>
+<p>While this can be a poor approximation for $\beta_m$, it is a good (and faster!) one for $\mathbf{R}_m$! So, in practice we break estimation of $\gamma_m$ in two steps:</p>
+<p>$$\hat{\mathbf{R}}_m = \underset{\mathbf{R}_m}{\mathrm{argmin}} \space \underset{\beta_m}{\mathrm{min}} \sum_{i=j}^{|R_{jm}|} \sum_{i \in R_{jm}} (g_{im}-\beta_{jm})^2$$</p>
+<p>$$\hat{\beta}_m = \underset{\beta_m}{\mathrm{argmin}}  \sum_{i=j}^{|\hat{R}_{jm}|} \sum_{i \in \hat{R}_{jm}} \mathrm{L}\left(y_i, f_{m-1}(\mathbf{x}_i)+\beta_{jm}\right)$$</p>
+<p>The gradient depends, clearly, on the loss. For instance, for squared error loss, $\mathrm{L}(y_i, f(\mathbf{x}_i))=\frac{1}{2} (y_i-f(\mathbf{x}_i))^2$, $g_{im}= y_i - f_{m-1}(\mathbf{x}_i)$. In general, for a deviance loss from an exponential family with canonical link $g$, $g_{im}= y_i - g^{-1}(f_{m-1}(\mathbf{x}_i))$, so $g_{im}$ can be interpreted as pseudo-residual. We can summarize this discussion in a new algorithm:</p>
+<p><strong>Algorithm: Gradient Tree Boosting</strong><br>
+<strong>INPUTS</strong>: training dataset $\tau$, # boosting iterations $M$, tree sizes $\mathbf{J} = (J_1, \dots, J_M)$<br>
+<strong>INITIALIZE</strong>: $f_0(\mathbf{x}_i)=0,i=1,\dots,N$<br>
+<strong>FOR</strong> $m=1,\dots,M$ <strong>DO</strong><br>
+ $g_{im}=-\frac{\partial \mathrm{L}(y_i, f(\mathbf{x}_i))}{\partial f(\mathbf{x}_i)}$<br>
+ $\hat{\mathbf{R}}_m = \underset{\mathbf{R}_m}{\mathrm{argmin}} \space \underset{\beta_m}{\mathrm{min}} \sum_{i=j}^{|R_{jm}|} \sum_{i \in R_{jm}} (g_{im}-\beta_{jm})^2$<br>
+ <strong>FOR</strong> $j=1,\dots,|\hat{\mathbf{R}}_m|$ <strong>DO</strong><br>
+  $\hat{\beta}_m = \underset{\beta_m}{\mathrm{argmin}}  \sum_{i=j}^{|\hat{R}_{jm}|} \sum_{i \in \hat{R}_{jm}} \mathrm{L}\left(y_i, f_{m-1}(\mathbf{x}_i)+\beta_{jm}\right)$<br>
+  <strong>FOR</strong> $i\in\hat{\mathbf{R}}_m$ <strong>DO</strong><br>
+   $f_m(\mathbf{x}_i) = f_{m-1}(\mathbf{x}_i)+\hat{\beta}_{jm}$<br>
+  <strong>END</strong><br>
+ <strong>END</strong><br>
+<strong>END</strong></p>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

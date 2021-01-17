@@ -1,0 +1,345 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>GWAS Quality Control - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">GWAS Quality Control</h1>
+                    2020-04-05
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <ul>
+<li>Reference
+<ul>
+<li>Anderson et al., 2010: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3025522/">Data quality control in genetic case-control association studies</a></li>
+<li>Marees et al., 2018: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6001694/">A tutorial on conducting genome‐wide association studies: Quality control and statistical analysis</a></li>
+<li><a href="https://www.illumina.com/content/dam/illumina-marketing/documents/products/technotes/technote-gwas-processing.pdf">Data Analysis: GWAS Processing</a></li>
+</ul>
+</li>
+<li>Software for genome-wide association analysis
+<ul>
+<li><a href="https://www.cog-genomics.org/plink/">PLINK 1.90 beta</a></li>
+<li><a href="https://www.r-project.org/">The R Project for Statistical Computing</a></li>
+</ul>
+</li>
+</ul>
+<h2>Notes of <u>Anderson et al., 2010</u></h2>
+<p>Several QC steps must be taken to remove individuals or marketer with particularly high error rates because even a low rate of error or bias can be detrimental in a GWA study with a large number of marker loci tested.</p>
+<p>(<a href="#jump2">in conflict!</a><span id="jump1"></span>) <strong>It is suggest that implementing QC on a &quot;per-individual&quot; basis before conducting QC on a &quot;per-marker&quot; basis</strong> to maximize the number of markers remaining in the study. The removal of a (hopefully) small percentage of these should not markedly decrease the overall power of the study.</p>
+<h3>Per-individual QC</h3>
+<p>Per-individual QC of GWA data consists of at least four steps:</p>
+<ul>
+<li>
+<p><strong>Identification of individuals with discordant sex information</strong></p>
+<ul>
+<li>Typically, we expects male samples to have a homozygosity rate of 1 (although, because of genotyping error, this can vary) and females to have a homozygosity rate of &lt; 0.2.</li>
+</ul>
+</li>
+<li>
+<p><strong>Identification of individuals with outlying missing genotype or heterozygosity rates</strong></p>
+<ul>
+<li>
+<p>Typically, individuals with more than <strong>3-7% missing genotypes</strong> are removed. Carefully scrutinizing the distribution of missing genotype rates across the entire sample set is the best way to ascertain the most appropriate threshold.</p>
+</li>
+<li>
+<p>Similarly, the distribution of mean heterozygosity (excluding sex chromosomes) accross all individuals should be inspected to indentify individuals with an excessive or reduced proportion of heterozygote genotypes.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Identification of duplicated or related individuals</strong></p>
+<ul>
+<li>
+<p>A basic feature of standard population-based case-control association studies is that all samples are unrelated.</p>
+</li>
+<li>
+<p>The degree of recent shared ancestry for a pair of individuals (identity by descent, IBD) can be estimated with genome-wide IBS data. The expectation is that IBD = 1 for duplicates or monozygotic twins, IBD = 0.5 for first-degree relatives, IBD = 0.25 for second-degree realtives and IBD = 0.125 for third-degree relatives. It is typical to remove one individual from each pair <strong>with an IBD value of &gt; 0.1875</strong>. An IBD value of &gt; 0.98 identifies duplicates.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Identification of individuals of divergent ancestry</strong></p>
+<ul>
+<li>
+<p>Confounding can be a major source of bias in population-based case-control studies and is caused by underlying differences between the case and control subgroups other than those directly under study (typically, disease status) that correlate with the exposure variable.</p>
+</li>
+<li>
+<p>The most common method for identifying (and subsequently removing) individuals with large-scale differences in ancestry is <strong>principal component analysis (PCA)</strong>.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3>Per-marker QC</h3>
+<p>The criteria used to filter out low-quality markers differ from study to study. Great care must be taken to remove only poorly characterized markers because every removed marker is potentially a missed disease variant.</p>
+<ul>
+<li>
+<p><strong>Identification of SNPs with an excessive missing genotype</strong></p>
+<ul>
+<li>Classically, markers with a call rate less than 95% are removed from further study.</li>
+</ul>
+</li>
+<li>
+<p><strong>Identification of SNPs showing a significant deviation from Hardy-Weinberg equilibrium (HWE)</strong></p>
+<ul>
+<li>Only control samples should be used when testing for deviations for HWE.</li>
+</ul>
+</li>
+<li>
+<p><strong>Identification of SNPs with significantly different missing genotype rates between cases and controls</strong></p>
+<ul>
+<li>In studies in which cases and /or controls have been drawn from several different sources, it is wise to test for major differences in call rate, allele frequeny and genotype frequency between these various groups to ensure that it is fair to treat the combined case or control set as one homogenous group.</li>
+</ul>
+</li>
+<li>
+<p><strong>The removal of all markers with a very low minor allele frequency (MAF)</strong></p>
+<ul>
+<li>
+<p>Typically, <strong>a MAF threshold of 1-2% is applied</strong>, but studies with small asample sizes may require a higher threshold.</p>
+</li>
+<li>
+<p>Checking cluster plots manually is the best way to ensure that genotype calls are robust.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2>Notes of <u>Marees et al., 2018</u></h2>
+<p>seven QC steps consist of filtering out of SNPs and individuals based on the following</p>
+<ul>
+<li>
+<p><strong>Individual and SNP missingness</strong></p>
+<ul>
+<li>
+<p>Excludes SNPs that are missing in a large proportion of the subjects, and individuals who have high rates of genotype missingness.</p>
+</li>
+<li>
+<p>It is recommended to first filter SNPs and individuals based on a relaxed threshold (0.2; &gt;20%), as this will filter out SNPs and individuals with very high levels of missingness. Then a filter with a more stringent threshold can be applied (0.02). (<a href="#jump1">in conflict!</a><span id="jump2"></span>) <strong>Note, SNP filtering should be performed before individual filtering.</strong></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Inconsistencies in assigned and genetic sex of subjects (see sex discrepancy)</strong></p>
+<ul>
+<li>
+<p>Checks for discrepancies between sex of the individuals recorded in the dataset and their sex based on X chromosome heterozygosity/homozygosity rates.</p>
+</li>
+<li>
+<p>Males should have an X chromosome homozygosity estimate &gt; 0.8 and females should have a value &lt; 0.2.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Minor allele frequency (MAF)</strong></p>
+<ul>
+<li>
+<p>SNPs with a low MAF are rare, therefore power is lacking for detecting SNP‐phenotype associations. These SNPs are also more prone to genotyping errors.</p>
+</li>
+<li>
+<p>The MAF threshold should depend on your sample size, larger samples can use lower MAF thresholds. Respectively, for large (N = 100,000) vs. moderate samples (N = 10000), 0.01 and 0.05 are commonly used as MAF threshold.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Deviations from Hardy–Weinberg equilibrium (HWE)</strong></p>
+<ul>
+<li>
+<p>For binary traits we suggest to exclude: HWE p value &lt;1e−10 in cases and &lt;1e−6 in controls. For quantitative traits, we recommend HWE p value &lt;1e‐6.</p>
+</li>
+<li>
+<p>Less strict case threshold avoids discarding disease‐associated SNPs under selection.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Heterozygosity rate</strong></p>
+<ul>
+<li>
+<p>Deviations can indicate sample contamination, inbreeding.</p>
+</li>
+<li>
+<p>Removing individuals who deviate ±3 SD from the samples' heterozygosity rate mean.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Relatedness</strong></p>
+<ul>
+<li>
+<p>Calculates identity by descent (IBD) of all sample pairs. Sets threshold and creates a list of individuals with relatedness above the chosen threshold.</p>
+</li>
+<li>
+<p>For a population based sample we suggest to use a pi‐hat threshold of 0.2.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Ethnic outliers (see population stratification)</strong></p>
+<ul>
+<li>Produces a k‐dimensional representation of any substructure in the data, based on IBS. K is the number of dimensions, which needs to be defined (typically 10).</li>
+</ul>
+</li>
+</ul>
+<h2>Procedure</h2>
+<h3>Download Data</h3>
+<ul>
+<li>
+<p>Download and unpack the data from <a href="https://github.com/MareesAT/GWA_tutorial/">online tutorial</a>.</p>
+</li>
+<li>
+<p>Use Plink to create the BED, BIM and FAM files if the data is in .ped and .map format. type <code>plink --file raw-GWA-data --make-bed --out raw-GWA-data</code> at the shell prompt.</p>
+</li>
+</ul>
+<h3>Identification of individuals with discordant sex information</h3>
+<ul>
+<li>
+<p>Type <code>plink --bfile raw-GWA-data --check-sex --out raw-GWA-data</code> to calculate the mean homozygosity rate across X chromosome markers for each individual in the study.<details><summary><i>Plink Result</i></summary><pre style=white-space:pre-wrap;word-wrap:break-word;><code>PLINK v1.90b6.16 64-bit (19 Feb 2020)<br>Options in effect:<br>  --bfile raw-GWA-data<br>  --check-sex<br>  --out raw-GWA-data<br><br>Random number seed: 1586467245<br>8066 MB RAM detected; reserving 4033 MB for main workspace.<br>1457897 variants loaded from .bim file.<br>165 people (80 males, 85 females) loaded from .fam.<br>112 phenotype values loaded from .fam.<br>Using 1 thread (no multithreaded calculations invoked).<br>Before main variant filters, 112 founders and 53 nonfounders present.<br>Calculating allele frequencies... done.<br>Warning: 225 het. haploid genotypes present (see raw-GWA-data.hh ); many<br>commands treat these as missing.<br>Total genotyping rate is 0.997378.<br>1457897 variants and 165 people pass filters and QC.<br>Among remaining phenotypes, 56 are cases and 56 are controls.  (53 phenotypes<br>are missing.)<br><code>--check-sex: 25093 Xchr and 0 Ychr variant(s) scanned, 1 problem detected.&lt;br&gt;Report written to raw-GWA-data.sexcheck</code>.
+</code></pre></p>
+</details>
+</li>
+<li>
+<p>Produce a list of individuals with discordant sex data by typing <code>grep PROBLEM raw-GWA-data.sexcheck &gt; raw-GWA-data.sexprobs</code> and open the file to obtain the sex according to the genotype data (column 4) for these individuals. When the homozygosity rate is more than 0.2 but less than 0.8 the genotype data is inconclusive regarding the sex of an individual and these are marked in column 4 with a 0.</p>
+</li>
+<li>
+<p>Report the IDs of individuals with discordant sex information to those who conducted sex phenotyping to a file called 'fail-sexcheck-qc.txt' .<details><summary><i>R Script</i></summary><pre style=white-space:pre-wrap;word-wrap:break-word;><code>sexprobs = read.table('raw-GWA-data.sexprobs', header = F)<br>write.table(sexprobs[1:2], &quot;fail-sexcheck-qc.txt&quot;,<br>row.names=F, col.names=F, sep=&quot; &quot;, quote = F)
+</code></pre></p>
+</details>
+</li>
+</ul>
+<h3>Identification of individuals with elevated missing data rates or outlying heterozygosity rate</h3>
+<ul>
+<li>type <code>plink --bfile raw-GWA-data --missing --out raw-GWA-data</code> to create the files raw-GWA-data.imiss and raw-GWA-data.lmiss. The fourth column in the imiss file (N_MISS) gives the number of missing SNPs and the sixth column (F_MISS) gives the proportion of missing SNPs per individual.<details><summary><i>Plink Result</i></summary><pre style=white-space:pre-wrap;word-wrap:break-word;><code>PLINK v1.90b6.16 64-bit (19 Feb 2020)<br>Options in effect:<br>  --bfile raw-GWA-data<br>  --missing<br>  --out raw-GWA-data<br><br>Random number seed: 1586467676<br>8066 MB RAM detected; reserving 4033 MB for main workspace.<br>1457897 variants loaded from .bim file.<br>165 people (80 males, 85 females) loaded from .fam.<br>112 phenotype values loaded from .fam.<br>Using 1 thread (no multithreaded calculations invoked).<br>Before main variant filters, 112 founders and 53 nonfounders present.<br>Calculating allele frequencies... done.<br>Warning: 225 het. haploid genotypes present (see raw-GWA-data.hh ); many<br>commands treat these as missing.<br>Total genotyping rate is 0.997378.<br>  --missing: Sample missing data report written to raw-GWA-data.imiss, and<br>variant-based missing data report written to raw-GWA-data.lmiss.
+</code></pre>
+</details>
+</li>
+<li>At te shell prompt type <code>plink --bfile raw-GWA-data --het --out raw-GWA-data</code> to create the file raw-GWA-data.het where the third column gives the observed number of homozygous genotypes [O(Hom)] and the fifth column gives the number of non-missing genotypes [N(NM)], per individual.<details><summary><i>Plink Result</i></summary><pre style=white-space:pre-wrap;word-wrap:break-word;><code>PLINK v1.90b6.16 64-bit (19 Feb 2020)<br>Options in effect:<br>  --bfile raw-GWA-data<br>  --het<br>  --out raw-GWA-data<br><br>Random number seed: 1586467767<br>8066 MB RAM detected; reserving 4033 MB for main workspace.<br>1457897 variants loaded from .bim file.<br>165 people (80 males, 85 females) loaded from .fam.<br>112 phenotype values loaded from .fam.<br>Using 1 thread (no multithreaded calculations invoked).<br>Before main variant filters, 112 founders and 53 nonfounders present.<br>Calculating allele frequencies... done.<br>Warning: 225 het. haploid genotypes present (see raw-GWA-data.hh ); many<br>commands treat these as missing.<br>Total genotyping rate is 0.997378.<br>1457897 variants and 165 people pass filters and QC.<br>Among remaining phenotypes, 56 are cases and 56 are controls.  (53 phenotypes<br>are missing.)<br>  --het: 1253535 variants scanned, report written to raw-GWA-data.het .
+</code></pre>
+</details>
+</li>
+<li>Calclate the observed heterozygosity rate per individual using the formula [N(NM) - O(Hom)]/N(NM). Create a graph where the observed heterozygosity rate per individual is plotted on the x-axis and the proportion of missing SNPs per individuals is plotted on the y-axis. <details><summary><i>R Script</i></summary><pre style=white-space:pre-wrap;word-wrap:break-word;><code><code># install.packages(&quot;BiocManager&quot;)</code><br><code># library(&quot;BiocManager&quot;)</code><br><code># BiocManager::install(&quot;geneplotter&quot;)</code><br><br>library(&quot;geneplotter&quot;)<br><br><code>sd.n = 3 # ± sd.n standard deviations from the mean</code><br><code>f.rate = 0.01 # exclude all individuals with a genotype failure rate ≥ f.rate</code><br><code>m = mean(het$meanHet)</code><br><code>std = sd(het$meanHet)</code><br><br><code>imiss = read.table(&quot;raw-GWA-data.imiss&quot;, h = T)</code><br><code>imiss$logF_MISS = log10(imiss[, 6])</code><br><code>het = read.table(&quot;raw-GWA-data.het&quot;, h = T)</code><br><code>het$meanHet = (het$N.NM. - het$O.HOM.) / het$N.NM.</code><br><code>colors = densCols(imiss$logF_MISS, het$meanHet)</code><br><br><code>svg(&quot;raw-GWA-data.imiss-vs-het.svg&quot;)</code><br><br><code>plot(imiss$logF_MISS, het$meanHet, col = colors, xlim = c(-4, 0),</code><br>  <code>ylim = c(0, 0.5), pch = 20, xlab = &quot;Proportion of missing genotypes&quot;,</code><br>  <code>ylab = &quot;Heterozygosity rate&quot;, axes = F)</code><br><code>axis(2, at = seq(from = 0, to = 0.5, by = 0.05), tick = T)</code><br><code>axis(1, at = c(-4, -3, -2, -1, 0), labels = c(0.0001, 0.001, 0.01, 0.1, 1))</code><br><code>abline(h = mean(het$meanHet) - (sd.n*sd(het$meanHet)), col = &quot;RED&quot;, lty = 2)</code><br><code>abline(h = mean(het$meanHet) + (sd.n*sd(het$meanHet)), col = &quot;RED&quot;, lty = 2)</code><br><code>abline(v = log(f.rate, base = 10), col = &quot;RED&quot;, lty = 2)</code><br><code>dev.off()</code><br><br><code>filter = (het$meanHet &gt; m - (sd.n*std)) &amp;</code><br><code>&amp;emsp; (het$meanHet &lt; m + (sd.n*std)) &amp;</code><br><code>&amp;emsp; (imiss$logF_MISS &lt; log10(f.rate))</code><br><br><code>write.table(imiss[!filter, c(&#x27;FID&#x27;, &#x27;IID&#x27;)], &quot;fail-imisshet-qc.txt&quot;,</code><br><code>&amp;emsp;row.names=F, col.names=F, sep=&quot; &quot;, quote = F)</code>
+</code></pre>
+</details>
+</li>
+</ul>
+<center><img src="./raw-GWA-data.imiss-vs-het.svg" width="60%"></center>
+<ul>
+<li>Exmine the plot to decide reasonable thresholds at which to exclude individuals based on elevated missing or extreme heterozygosity. We chose to exclude all individuals with a genotype failure rate ≥ 0.02 (vertical dashed line) and/or heterozygosity rate ± 3 standard deviations from the mean (horizontal dashed lines). Add the family ID and individual ID of samples failing this QC to a file named 'fail-imisshet-qc.txt'.</li>
+</ul>
+<h3>Identification of duplicated or related individuals</h3>
+<ul>
+<li>
+<p>To reduce the computational complexity the number of SNPs used to create the IBS matrix can be reduced by pruning the dataset so that no pair of SNPs (within a given number of base-pairs) has an r2 greater that a given threshold (typically 0.2). In real datasets where LD is present the data can be pruned by typing <code>plink --file raw-GWA-data --exclude high-LD-regions.txt --range --indep-pairwise 50 5 0.2 --out raw-GWA-data</code> to create the file raw-GWA-data.prune.in.</p>
+</li>
+<li>
+<p>Given that our current dataset was simulated ignoring LD this step is not applicable, here use <code>plink --file raw-GWA-data --indep-pairwise 50 5 0.2 --out raw-GWA-data</code> to create the file raw-GWA-data.prune.in.<details><summary><i>Plink Result</i></summary><pre style=white-space:pre-wrap;word-wrap:break-word;><code>PLINK v1.90b6.16 64-bit (19 Feb 2020)<br>Options in effect:<br>  --bfile raw-GWA-data<br>  --indep-pairwise 50 5 0.2<br>  --out raw-GWA-data<br><br>Random number seed: 1586469497<br>8066 MB RAM detected; reserving 4033 MB for main workspace.<br>1457897 variants loaded from .bim file.<br>165 people (80 males, 85 females) loaded from .fam.<br>112 phenotype values loaded from .fam.<br>Using 1 thread (no multithreaded calculations invoked).<br>Before main variant filters, 112 founders and 53 nonfounders present.<br>Calculating allele frequencies... done.<br>Warning: 225 het. haploid genotypes present (see raw-GWA-data.hh ); many<br>commands treat these as missing.<br>Total genotyping rate is 0.997378.<br>1457897 variants and 165 people pass filters and QC.<br>Among remaining phenotypes, 56 are cases and 56 are controls.  (53 phenotypes<br>are missing.)<br>Pruned 105994 variants from chromosome 1, leaving 13493.<br>Pruned 106969 variants from chromosome 2, leaving 12533.<br>Pruned 88165 variants from chromosome 3, leaving 10806.<br>Pruned 78480 variants from chromosome 4, leaving 9655.<br>Pruned 80434 variants from chromosome 5, leaving 9934.<br>Pruned 83438 variants from chromosome 6, leaving 10233.<br>Pruned 68757 variants from chromosome 7, leaving 8620.<br>Pruned 69021 variants from chromosome 8, leaving 8090.<br>Pruned 57764 variants from chromosome 9, leaving 7487.<br>Pruned 67135 variants from chromosome 10, leaving 8481.<br>Pruned 65141 variants from chromosome 11, leaving 7852.<br>Pruned 62232 variants from chromosome 12, leaving 8250.<br>Pruned 47176 variants from chromosome 13, leaving 6117.<br>Pruned 41269 variants from chromosome 14, leaving 5386.<br>Pruned 38198 variants from chromosome 15, leaving 5111.<br>Pruned 40078 variants from chromosome 16, leaving 5700.<br>Pruned 34139 variants from chromosome 17, leaving 5190.<br>Pruned 36909 variants from chromosome 18, leaving 5033.<br>Pruned 22809 variants from chromosome 19, leaving 4144.<br>Pruned 32527 variants from chromosome 20, leaving 4632.<br>Pruned 17366 variants from chromosome 21, leaving 2436.<br>Pruned 17791 variants from chromosome 22, leaving 2858.<br>Pruned 29581 variants from chromosome 23, leaving 3993.<br>Pruned 284 variants from chromosome 25, leaving 206.<br>Pruning complete.  1291657 of 1457897 variants removed.<br>Marker lists written to raw-GWA-data.prune.in and raw-GWA-data.prune.out.
+</code></pre></p>
+</details>
+</li>
+<li>
+<p>Type <code>plink --bfile raw-GWA-data --extract raw-GWA-data.prune.in --genome --out raw-GWA-data</code> to generate pair-wise IBS for all pairs of individuals in the study based on the reduced marker set.<details><summary><i>Plink Result</i></summary><pre style=white-space:pre-wrap;word-wrap:break-word;><code>PLINK v1.90b6.16 64-bit (19 Feb 2020)<br>Options in effect:<br>  --bfile raw-GWA-data<br>  --extract raw-GWA-data.prune.in<br>  --genome<br>  --out raw-GWA-data<br><br>Random number seed: 1586469844<br>8066 MB RAM detected; reserving 4033 MB for main workspace.<br>1457897 variants loaded from .bim file.<br>165 people (80 males, 85 females) loaded from .fam.<br>112 phenotype values loaded from .fam.<br>  --extract: 166240 variants remaining.<br>Using up to 8 threads (change this with --threads).<br>Before main variant filters, 112 founders and 53 nonfounders present.<br>Calculating allele frequencies... done.<br>Warning: 35 het. haploid genotypes present (see raw-GWA-data.hh ); many<br>commands treat these as missing.<br>Total genotyping rate is 0.996691.<br>166240 variants and 165 people pass filters and QC.<br>Among remaining phenotypes, 56 are cases and 56 are controls.  (53 phenotypes<br>are missing.)<br>Excluding 3993 variants on non-autosomes from IBD calculation.<br>IBD calculations complete.<br>Finished writing raw-GWA-data.genome.
+</code></pre></p>
+</details>
+</li>
+<li>
+<p>Type <code>perl run-IBD-QC.pl raw-GWA-data</code> to identify all pairs of individuals with an IBD &gt; 0.185. The code outputs the ids of the individual with the lowest call-rate to 'fail-IBD-QC.txt' for subsequent removal.</p>
+</li>
+</ul>
+<h3>Remove all individuals failing QC</h3>
+<ul>
+<li>
+<p>At the shell prompt type <code>cat fail-\* | sort -k1 | uniq &gt; fail-qc-inds.txt</code> to concatenate all the files listing individuals failing the previous QC steps into 'fail-qc-inds.txt'.</p>
+</li>
+<li>
+<p>The file fail-qc-inds.txt should now contain a list of unique individuals failing the previous QC steps. To remove these from the dataset type <code>plink --bfile raw-GWA-data --remove fail-qc-inds.txt --make-bed --out clean-inds-GWA-data</code> at the shell prompt.<details><summary><i>Plink Result</i></summary><pre style=white-space:pre-wrap;word-wrap:break-word;><code>PLINK v1.90b6.16 64-bit (19 Feb 2020)<br>Options in effect:<br>  --bfile raw-GWA-data<br>  --make-bed<br>  --out clean-inds-GWA-data<br>  --remove fail-qc-inds.txt<br><br>Random number seed: 1586472595<br>8066 MB RAM detected; reserving 4033 MB for main workspace.<br>1457897 variants loaded from .bim file.<br>165 people (80 males, 85 females) loaded from .fam.<br>112 phenotype values loaded from .fam.<br>  --remove: 85 people remaining.<br>Warning: At least 3 duplicate IDs in --remove file.<br>Using 1 thread (no multithreaded calculations invoked).<br>Before main variant filters, 67 founders and 18 nonfounders present.<br>Calculating allele frequencies... done.<br>Warning: 157 het. haploid genotypes present (see clean-inds-GWA-data.hh ); many<br>commands treat these as missing.<br>Total genotyping rate in remaining samples is 0.998205.<br>1457897 variants and 85 people pass filters and QC.<br>Among remaining phenotypes, 32 are cases and 35 are controls.  (18 phenotypes<br>are missing.)<br>  --make-bed to clean-inds-GWA-data.bed + clean-inds-GWA-data.bim +<br>clean-inds-GWA-data.fam ... done.
+</code></pre></p>
+</details>
+</li>
+</ul>
+<h3>Identify all markers with an excessive missing data rate</h3>
+<ul>
+<li>To calculate the missing genotype rate for each marker type <code>plink --bfile clean-inds-GWA-data --missing --out clean-inds-GWA-data</code>. The results of this analysis can be found in clean-inds-GWA-data.lmiss.<details><summary><i>Plink Result</i></summary><pre style=white-space:pre-wrap;word-wrap:break-word;><code>PLINK v1.90b6.16 64-bit (19 Feb 2020)<br>Options in effect:<br>  --bfile clean-inds-GWA-data<br>  --missing<br>  --out clean-inds-GWA-data<br><br>Random number seed: 1586473154<br>8066 MB RAM detected; reserving 4033 MB for main workspace.<br>1457897 variants loaded from .bim file.<br>85 people (42 males, 43 females) loaded from .fam.<br>67 phenotype values loaded from .fam.<br>Using 1 thread (no multithreaded calculations invoked).<br>Before main variant filters, 67 founders and 18 nonfounders present.<br>Calculating allele frequencies... done.<br>Warning: 157 het. haploid genotypes present (see clean-inds-GWA-data.hh ); many<br>commands treat these as missing.<br>Total genotyping rate is 0.998205.<br>  --missing: Sample missing data report written to clean-inds-GWA-data.imiss, and<br>variant-based missing data report written to clean-inds-GWA-data.lmiss.
+</code></pre>
+</details>
+</li>
+<li>Plot a histogram of the missing genotype rate to identify a threshold for extreme genotype failure rate. This can be done using the data in column five of the clean-inds-GWA-data.lmiss file and any standard statistical/graphing software package. A script for creating this histogram in R has been provided (lmiss-hist.Rscript). We chose to a call-rate threshold of 3% (these SNPs will be removed later in the protocol).</li>
+</ul>
+<center><img src="./clean-inds-GWA-data.lmiss.svg" width="60%"></center>
+<h3>Test markers for different genotype call rates between cases and contols</h3>
+<ul>
+<li>At the shell prompt type <code>plink --bfile clean-inds-GWA-data --test-missing --out clean-inds-GWA-data</code> to test all markers for differences in call rate between cases and controls. The output of this test can be found in clean-inds-GWA-data.missing.<details><summary><i>Plink Result</i></summary><pre style=white-space:pre-wrap;word-wrap:break-word;><code>PLINK v1.90b6.16 64-bit (19 Feb 2020)<br>Options in effect:<br>  --bfile clean-inds-GWA-data<br>  --out clean-inds-GWA-data<br>  --test-missing<br><br>Random number seed: 1586483496<br>8066 MB RAM detected; reserving 4033 MB for main workspace.<br>1457897 variants loaded from .bim file.<br>85 people (42 males, 43 females) loaded from .fam.<br>67 phenotype values loaded from .fam.<br>Using 1 thread (no multithreaded calculations invoked).<br>Before main variant filters, 67 founders and 18 nonfounders present.<br>Calculating allele frequencies... done.<br>Warning: 157 het. haploid genotypes present (see clean-inds-GWA-data.hh ); many<br>commands treat these as missing.<br>Total genotyping rate is 0.998205.<br>1457897 variants and 85 people pass filters and QC.<br>Among remaining phenotypes, 32 are cases and 35 are controls.  (18 phenotypes<br>are missing.)<br>Writing --test-missing report to clean-inds-GWA-data.missing ... done.
+</code></pre>
+</details>
+</li>
+<li>At the shell prompt type <code>perl run-diffmiss-qc.pl clean-inds-GWA-data</code> to create a file called 'fail-diffmiss-qc.txt' which contains all SNPs with a significantly different (P&lt;0.00001) missing data rate between cases and controls.</li>
+</ul>
+<h3>Remove all markers failing QC</h3>
+<ul>
+<li>To remove poor SNPs from further analysis and create a clean GWA data file type <code>plink --bfile clean-inds-GWA-data --exclude fail-diffmiss-qc.txt --maf 0.05 --geno 0.05 --hwe 0.00001 --make-bed --out clean-GWA-data</code> at the shell prompt. In addition to markers failing previous QC steps, those with a MAF &lt; 0.05 and a HWE P-value &lt; 0.00001 (in controls) are also removed.<details><summary><i>Plink Result</i></summary><pre style=white-space:pre-wrap;word-wrap:break-word;><code>PLINK v1.90b6.16 64-bit (19 Feb 2020)<br>Options in effect:<br>  --bfile clean-inds-GWA-data<br>  --exclude fail-diffmiss-qc.txt<br>  --geno 0.05<br>  --hwe 0.00001<br>  --maf 0.01<br>  --make-bed<br>  --out clean-GWA-data<br><br>Random number seed: 1586485483<br>8066 MB RAM detected; reserving 4033 MB for main workspace.<br>1457897 variants loaded from .bim file.<br>85 people (42 males, 43 females) loaded from .fam.<br>67 phenotype values loaded from .fam.<br>  --exclude: 1457897 variants remaining.<br>Using 1 thread (no multithreaded calculations invoked).<br>Before main variant filters, 67 founders and 18 nonfounders present.<br>Calculating allele frequencies... done.<br>Warning: 157 het. haploid genotypes present (see clean-GWA-data.hh ); many commands treat these as missing.<br>Total genotyping rate is 0.998205.<br>703 variants removed due to missing genotype data (--geno).<br>Warning: --hwe observation counts vary by more than 10%.  Consider using --geno, and/or applying different p-value thresholds to distinct subsets of your data.<br>  --hwe: 1 variant removed due to Hardy-Weinberg exact test.<br>340701 variants removed due to minor allele threshold(s)<br>(--maf/--max-maf/--mac/--max-mac).<br>1116492 variants and 85 people pass filters and QC.<br>Among remaining phenotypes, 32 are cases and 35 are controls.  (18 phenotypes are missing.)<br>  --make-bed to clean-GWA-data.bed + clean-GWA-data.bim + clean-GWA-data.fam ...done.
+</code></pre>
+</details>
+</li>
+</ul>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

@@ -1,0 +1,205 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Fixed Effects - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Fixed Effects</h1>
+                    2020-11-05
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>Notes</h2>
+<ul>
+<li>Panel data
+<ul>
+<li>Multiple observations contributed by each individual (or firm, or county, etc.), over time</li>
+<li>Opportunity: we now have 2 kinds of variation: not just variation between individuals, but also variation within each individual</li>
+<li>Threat: if not handled correctly, this extra variation can introduce bias</li>
+</ul>
+</li>
+<li>First differencing: model setup
+<ul>
+<li>Define $a_i$ as the &quot;unobservable&quot; effect for each city $i$ (time-invariant)</li>
+<li>Specify one model for year 1, another for year 2
+<ul>
+<li>Year 1: $y_1 = \beta_0+ \beta_1 x_1 + a_i + u_1$</li>
+<li>Year 2: $y_2 = \beta_0+ \delta_0 +\beta_1 x_2 + a_i + u_2$</li>
+<li>$\Delta y = \delta_0 + \beta_1 \Delta x + \Delta u$</li>
+</ul>
+</li>
+<li>Notice that the unobserved city effect ($a_i$) cancels out.</li>
+</ul>
+</li>
+<li>First differencing: More than 2 periods
+<ul>
+<li>E.g. subtract each year from the previous year, or from the base year</li>
+<li>If original dataset has N periods, the first-differenced dataset will have N-1 periods</li>
+</ul>
+</li>
+<li>The fixed effects model: Setup
+<ul>
+<li>$Y_{it}=bX_{it}+\Sigma a_i D_i + u_{it}$</li>
+<li>where:
+<ul>
+<li>$D_i$ is a set of city indicator variables</li>
+<li>$a_{i}$ is the constant effect for city $i$ (the &quot;fixed effect&quot;)</li>
+<li>$u_{it}$ is the within-city error term (&quot;idiosyncratic error&quot;)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Fixed effects versus first differencing
+<ul>
+<li>For 3 or more periods, the FE and FD estimators are not the same</li>
+<li>However, both are unbiased
+<ul>
+<li>If N is large and T is small, the choice depends on which technique is more efficient. And this depends on the serial correlation of the $u_{it}$. If they are serially uncorrelated, FE is more efficient than FD.</li>
+<li>If N is not very large and T is large (e.g. N=20, T=30), then FE may be problematic – time series issues arise, e.g., a possible unit root process. FD may be safer.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>(New) Assumptions for fixed effects
+<ul>
+<li>FE3. Each explanatory variable must have some variation across at least some units, and no perfect linear relationships among the explanatory variables</li>
+<li>FE4. For each $t$, $E(u_{it}|X_{i} , a_{i} )=0$ (strict exogeneity)</li>
+<li>FE5. For each $t$, $Var(u_{it}|X_i, a_i)=\sigma_u^2$ ($u_{it}$ not heteroskedastic)</li>
+<li>FE7. Conditional on $X$ and $a_i$, the $u_{it}$ are independently and identically distributed as $Normal(0, \sigma_u^2)$</li>
+</ul>
+</li>
+<li>Why pooled OLS on panel data is typically biased
+<ul>
+<li>Suppose that each city has its own unobservable effect ($a_i$)</li>
+<li>The true model: $Y_{it}=a+bX_{it}+\Sigma a_i D_i + u_{it}$</li>
+<li>But if using pooled OLS, you are estimating:  $Y_{it}=a+bX_{it}+ u_{it}$</li>
+<li>So the error term in the model you estimate is $v_{it} = \Sigma a_i D_i + u_{it}$</li>
+<li><strong>Violates OLS assumption MLR 4</strong></li>
+</ul>
+</li>
+<li>Testing whether there is clustering
+<ul>
+<li>Pooled OLS = ignore panel aspect, treat all obs as independent</li>
+<li>F-test: are the fixed effects jointly significant? If not, pooled OLS is ok</li>
+<li>Breusch-Pagan test of pooled OLS versus a panel model. This tests whether the variance of the random effects differs from zero. If close to zero, then pooled OLS is ok</li>
+</ul>
+</li>
+<li>Limitations
+<ul>
+<li>We can no longer include time-invariant characteristics in the model</li>
+<li>The fixed effects only capture differences across units in level, not in trend</li>
+<li>Inability to predict outside your original sample</li>
+</ul>
+</li>
+</ul>
+<h2>Fixed effect in Stata</h2>
+<ol>
+<li>Set up dataset for panel data analysis in Stata</li>
+</ol>
+<p>Stata includes a set of &quot;xt&quot; commands to summarize and analyze panel and clustered data.  Before any analysis, however, we must indicate that we will be working with a panel/clustered data set by running the xtset command followed by the entity ID variable then the time variable.</p>
+<pre><code>xtset county year
+</code></pre>
+<p>Note: when using the &quot;xt&quot; command, your data need to be in long format. If your data are not in long format, but rather in wide format, you can use the reshape command to change.</p>
+<pre><code>xtdescribe
+xtsum ${Variable}s 
+</code></pre>
+<ol start="2">
+<li>Estimate two-way FE estimators (control for time effect &amp; remove entity effect)</li>
+</ol>
+<pre><code>xtreg ${DV} ${TimeDummy}s ${IDV}s, fe
+</code></pre>
+<ol start="3">
+<li>Estimate LSDV estimators (dummies to control for county and year effects)</li>
+</ol>
+<pre><code>xtreg ${DV} ${TimeDummy}s ${EntityDummy}s ${IDV}s, fe
+</code></pre>
+<p>The F-test tests if the entity parameters are jointly significant not jointly significant, we then conclude that entity effect does not exist and a pooled cross-sections OLS would give unbiased estimates.</p>
+<p><strong>Extra</strong></p>
+<ol>
+<li>Check for heteroscedasticity of $\epsilon_{it}$</li>
+</ol>
+<pre><code>ssc install xttest3, replace
+xtreg ${DV} ${IDV}s, fe
+xttest3
+</code></pre>
+<p>The null hypothesis is homoscedasticity. If p&lt;0.05, we can reject the null and assume heteroscedasticity. We can apply robust standard errors to take care of this – just add “robust” as an option at the end of the FE command.</p>
+<pre><code>xtreg ${DV} ${IDV}s, fe robust
+</code></pre>
+<ol start="2">
+<li>Check for serial correlation</li>
+</ol>
+<pre><code>findit xtserial 
+//install: xtserial from http://www.stata.com/users/ddrukker
+xtserial ${DV} ${IDV}s
+</code></pre>
+<ol start="3">
+<li>xtscc corrects for both heteroscedasitiy and autocorrelation. There are options to specify the lag.</li>
+</ol>
+<pre><code>findit xtscc //install: st0128
+xtscc ${DV} ${IDV}s
+</code></pre>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

@@ -1,0 +1,217 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Random Effects - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Random Effects</h1>
+                    2020-11-12
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>Notes</h2>
+<ul>
+<li>The limitations of fixed effects
+<ul>
+<li>When there are unobservable unit effects in panel data, fixed effects can remove the bias from your estimates</li>
+<li>But the price for this approach can be quite high:
+<ul>
+<li>Standard errors are high, which reduces statistical power</li>
+<li>The FE approach doesn’t use information about variation between units, only variation within units</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Unobserved effects in panel data
+<ul>
+<li>$y_{it} = \alpha + \beta x_{it} + a_i + u_{it}$</li>
+<li>The error term in a pooled OLS model would be $v_{it} = a_i + u_{it}$
+<ul>
+<li>$a_i$ is the &quot;unobservable effect&quot; of the unit (it drives variation between units)</li>
+<li>$u_{it}$ is the &quot;idiosyncratic error&quot; (variation within each unit over time)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Random effects as an alternative
+<ul>
+<li>Random effects involves treating the unobserved effects ($a_i$) as realizations of a random variable</li>
+<li>Instead of estimating N-1 parameters (1 for each cross-sectional unit, e.g. each city), you only need to estimate 2: the mean and the variance of the distribution of unobserved effects</li>
+<li>Typically, we assume that $E(a_i)=0$ and $E(a_i^2)=\sigma_a^2$ (constant)</li>
+</ul>
+</li>
+<li>A framework for clustering in panel data
+<ul>
+<li>$y_{it} - \lambda \bar{y}_i = b_0 (1 - \lambda) + b_1 (x_{1it}-\lambda \bar{x}_{1i})+ \dots+b_k (x_{kit}-\lambda \bar{x}_{ki})+(v_{it}-\lambda \bar{v}_i)$ <br>where $\lambda=1-\left[ \frac{\lambda_u^2}{\lambda_u^2+T\lambda_a^2} \right]^\frac{1}{2})$</li>
+<li>Depending on the value of λ (lambda), this could result in a fixed effects model, a random effects model or a pooled OLS model</li>
+</ul>
+</li>
+<li>Comparing approaches to panel data
+<ul>
+<li>Pooled OLS assumes all the observations are independent – no correlation among observations from the same unit.
+<ul>
+<li>Like assuming $\lambda=0$: No weight on the entity mean, in that equation</li>
+</ul>
+</li>
+<li>Fixed effects assumes strong correlation among obs from the same unit
+<ul>
+<li>Like assuming $\lambda=1$: heavy weight on the entity mean (&quot;de-meaning&quot;)</li>
+</ul>
+</li>
+<li>Random effects is an approach where the software:
+<ul>
+<li>first checks how much variance is within versus between units</li>
+<li>Then uses that to choose how much weight to put on the means for units (what value for $\lambda$). If there's any clustering, the weight chosen won't be zero. (Result: &quot;quasi de-meaning&quot; – subtract a fixed fraction of the unit's mean)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>(New) Assumptions required for random effects
+<ul>
+<li>RE3: No perfect linear relationships among the explanatory variables
+<ul>
+<li>Note: this is weaker than the assumption FE3, which also required &quot;Each explanatory variable changes over time for at least some $i$&quot;</li>
+</ul>
+</li>
+<li>RE4: Expected value of $a_i$ given all explanatory vars is constant: $E(a_i|X)= \beta_0$
+<ul>
+<li>This assumption requires that there be no correlation between the unobserved effect ($a_i$) and the explanatory variables</li>
+<li><strong>It’s the key distinction between FE and RE</strong></li>
+</ul>
+</li>
+<li>RE5: The variance of $a_i$ given all explanatory variables is constant: $Var(a_i|X) = \sigma_a^2$
+<ul>
+<li>This assumption imposes homoskedasticity</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Properties
+<ul>
+<li>If these 6 assumptions are met, the RE estimator is:
+<ul>
+<li>Consistent</li>
+<li>normally distributed (asymptotically), as N gets large for fixed T</li>
+<li>asymptotically efficient.</li>
+</ul>
+</li>
+<li>Result: in large samples,
+<ul>
+<li>RE estimators will have smaller standard errors than the corresponding pooled OLS estimators</li>
+<li>RE estimators will have smaller standard errors than FE estimators</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Advantages and disadvantages
+<ul>
+<li>Advantages
+<ul>
+<li>Using RE is generally more efficient (smaller standard errors) than using fixed effects</li>
+<li>With RE you can use time-invariant chars of units as regressors, unlike with FE</li>
+<li>Save degrees of freedom</li>
+</ul>
+</li>
+<li>Disadvantages
+<ul>
+<li>RE is only valid if RE3 is met, which is often a strong assumption to make</li>
+<li>If the individual-effects are uncorrelated with the regressors, then RE is best</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Specification tests
+<ul>
+<li>Breusch-Pagan test: this test compares RE to a pooled OLS model with no group effects. It tests whether the variance of the random effects is zero. If $\sigma_a^2=0$, you could ignore group effects. Or, you need a panel model (RE or FE - but this test doesn’t tell you which).</li>
+<li>Hausman test: This test compares the estimates obtained from FE versus RE models. $H_0$: the RE estimates are similar to the FE estimates. If $H_0$ is accepted, it is safe to use the RE estimates. Or, it’s better to stick with the FE estimates</li>
+</ul>
+</li>
+</ul>
+<h2>RE in Stata</h2>
+<pre><code>xtset id year
+</code></pre>
+<ul>
+<li>Estimate a pooled OLS model for model comparison</li>
+</ul>
+<pre><code>reg ${DV} ${IDV} ${TimeDummy}s, vce(cluster ${EntityVar})
+estimates restore OLS
+</code></pre>
+<ul>
+<li>Estimate a random effects model</li>
+</ul>
+<pre><code>xtreg ${DV} ${IDV} ${TimeDummy}s, re theta // theta: request lambda
+estimates restore RE
+xttest0 // Breusch-Pagan test
+</code></pre>
+<ul>
+<li>Estimate a fixed effects model</li>
+</ul>
+<pre><code>xtreg ${DV} ${IDV} ${TimeDummy}s, fe theta
+estimates restore FE
+hausman FE RE // Hausman test
+</code></pre>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

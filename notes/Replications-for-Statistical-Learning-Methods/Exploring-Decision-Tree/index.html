@@ -1,0 +1,211 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Exploring Decision Tree - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Exploring Decision Tree</h1>
+                    2020-02-05
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <p>Tree-based methods partition the feature space into a set of rectangles, and then fit a simple model in each one. They are conceptually simple yet powerful.</p>
+<h2>Introduction to Decision Tree</h2>
+<p>In decision tree, each internal node represents a &quot;test&quot; on an attribute, each branch represents the outcome of the test, and each leaf node represents a class label. The paths from root to leaf represent classification rules. Three types of decision trees ID3, C4.5 and CART are most common decision tree algorithms in data mining.</p>
+<p>The problem of learning an optimal decision tree is known to be NP-complete under several aspects of optimality and even for simple concepts. Consequently, practical decision-tree learning algorithms are based on heuristics such as the greedy algorithm where locally optimal decisions are made at each node.</p>
+<h2>Creating a Decision Tree</h2>
+<p>Choosing features properly can largely improve the efficiency of decision tree and result in better prediction. Usually, decision tree models use metrics like entropy, Gini index or square error to decided which feature should be included in the model.</p>
+<h3>The Basic Algorithms: ID3 and C4.5</h3>
+<p>Entropy is the foundation of ID3 and C4.5, which measures the uncertainty of random variables. The entropy of random variable $D$ is defined by:</p>
+<p>$$H(D)=-\sum_{k=1}^{K} \frac{\left|C_{k}\right|}{|D|} \log _{2} \frac{\left|C_{k}\right|}{|D|}$$</p>
+<p>Conditional entropy $H(D | A)$ describes the outcome of a random variable $D$ given that the value of another random variable $A$ is known, which can be expressed as:</p>
+<p>$$H(D | A)=\sum_{i=1}^{n} \frac{\left|D_{i}\right|}{|D|} H\left(D_{i}\right)=-\sum_{i=1}^{n} \frac{\left|D_{i}\right|}{|D|} \sum_{k=1}^{K} \frac{\left|D_{i k}\right|}{\left|D_{i}\right|} \log _{2} \frac{\left|D_{i k}\right|}{\left|D_{i}\right|}$$</p>
+<p>ID3 uses information gain to decide which feature to split:</p>
+<p>$$g(D, A) = H(D) - H(D | A)$$</p>
+<p>C4.5 uses information gain ratio as its metrics:</p>
+<p>$$g_{R}(D, A)=\frac{g(D, A)}{H_{A}(D)}$$</p>
+<p><strong>Algorithm: ID3 and C4.5</strong><br />
+<strong>INPUT</strong>: training set $D$ and threshold $\epsilon$<br />
+<strong>OUTPUT</strong>: decision tree $T$</p>
+<ol>
+<li>Return one node tree $T$ with label $C_k$ if every case in $D$ belongs $C_k$</li>
+<li>Return one node tree $T$ with the majority of labels $C_k$ as its label if $A=\empty$</li>
+<li>Pick feature $A_g$ with the largest information gain (ID3) or information gain ratio (C4.5)</li>
+<li>Return one node tree $T$ with the majority of labels $C_k$ as its label if the information gain (ratio) is smaller than $\epsilon$</li>
+<li>For every possible value $a_i$ in $A_g$, devide $D$ into several subsets $D_i$ and assign each $D_i$ to a new child node. Return tree $T$ that constructed by those child nodes.</li>
+<li>For each newly created child node, with $D_i$ as training set and $A-\left\{A_g\right\}$ as feature set, recursively execute 1 - 5 to generate and return child tree $T_i$</li>
+</ol>
+<h4>Pruning Decision Tree</h4>
+<p>Pruning is a technique in machine learning and search algorithms that reduces the size of decision trees by removing sections of the tree that provide little power to classify instances. Pruning reduces the complexity of the final classifier, and hence improves predictive accuracy by the reduction of overfitting.</p>
+<p><strong>Algorithm: ID3 and C4.5 decision tree pruning</strong><br />
+<strong>INPUT</strong>: an tree $T$ that has already been trained, parameter $\alpha$<br />
+<strong>OUTPUT</strong>: decision tree $T$ after pruning</p>
+<ol>
+<li>Calculate each node's empirical entropy:</li>
+</ol>
+<p>$$C_{\alpha}(T)=-\sum_{t=1}^{|T|} \sum_{k} N_{t k} \log \frac{N_{t k}}{N_{t}}+\alpha|T|$$</p>
+<ol start="2">
+<li>
+<p>From each leaf toward the root of the tree, caculate the difference of empirical entropy before ($C_\alpha(T_A)$) and after ($C_\beta(T_B)$) pruning this node. If $C_\alpha(T_A) \geq C_\beta(T_B)$, then cut this node.</p>
+</li>
+<li>
+<p>Repeat 2 and get decision tree with the least loss.</p>
+</li>
+</ol>
+<h4>An Experiment Using <a href="https://archive.ics.uci.edu/ml/datasets/Mushroom">UCI Mushroom Data Set</a></h4>
+<pre class='hljs' style=white-space:pre-wrap;word-wrap:break-word>
+<code>Score:  
+ - Training score: 0.937  
+ - Testing score: 0.941  
+  
+Structure of Decision Tree:  
+- [ring_type] black  
+  - [veil_color] one  
+    - [ring_number] evanescent: 1  
+    - [ring_number] pendant: 1  
+- [ring_type] brown  
+  - [veil_color] one  
+    - [ring_number] evanescent: 1  
+    - [ring_number] pendant: 1  
+- [ring_type] buff: 1  
+- [ring_type] chocolate  
+  - [veil_color] one  
+    - [ring_number] flaring: 1  
+    - [ring_number] large: 0  
+    - [ring_number] pendant: 0  
+- [ring_type] green: 0  
+- [ring_type] orange: 1  
+- [ring_type] purple: 1  
+- [ring_type] white  
+  - [veil_color] none: 0  
+  - [veil_color] one  
+    - [ring_number] evanescent: 0  
+    - [ring_number] pendant: 0  
+  - [veil_color] two: 1  
+- [ring_type] yellow: 1  
+</code></pre>  
+<h3>Classification and Regression Tree (CART)</h3>
+<p>Classification and regression trees (CART) are a non-parametric decision tree learning technique that produces either classification or regression trees, depending on whether the dependent variable is categorical or numeric, respectively.</p>
+<p><strong>Algorithm: CART</strong><br />
+<strong>INPUT</strong>: training set $D$<br />
+<strong>OUTPUT</strong>: decision tree $T$</p>
+<ol>
+<li>Find each predictor’s best split. The best split point is the one that minimize the splitting criterion
+<ul>
+<li>For each continuous predictor, go through each value to examine each candidate split point (call it $s$, if $x \leq s$, the case goes to the left child node, otherwise, goes to the right) to determine the best.<br />
+$$\operatorname{Square\space Error} = \sum_{x_{i} &lt; s}\left(y_{i}-c_{1}\right)^{2}+ \sum_{x_{i} \geq s}\left(y_{i}-c_{2}\right)^{2}$$</li>
+<li>For each nominal predictor, examine each possible subset of categories (call it $A$, if $x \in A$, the case goes to the left child node, otherwise, goes to the right.) to  find the best split.<br />
+$$\operatorname{Gini}(D, A)=\frac{\left|D_{1}\right|}{|D|} \operatorname{Gini}\left(D_{1}\right)+\frac{\left|D_{2}\right|}{|D|} \operatorname{Gini}\left(D_{2}\right)$$</li>
+</ul>
+</li>
+<li>Find the node’s best split. Among the best splits found in step 1, choose the one that maximizes the splitting criterion</li>
+<li>Split the node using its best split found in step 2 if the stopping rules are not satisfied:
+<ul>
+<li>If all cases in a node have identical values of the dependent variable</li>
+<li>If all cases in a node have identical values for each predictor</li>
+<li>If the current tree depth reaches the user-specified maximum tree depth limit value</li>
+<li>If the size of a node is less than the user-specified minimum node size value</li>
+<li>If the split of a node results in a child node whose node size is less than the userspecified minimum child node size value</li>
+</ul>
+</li>
+</ol>
+<p>Below visualizes the decision boundary when applying CART on a very easy binary classification dataset:</p>
+<p><br><center><img src="cart_simple.svg" width=100%></center><br></p>
+<h4>Pruning CART</h4>
+<p>When the dataset becomes more complex, CART can easily overfit noisy. Thus, it is necessary to prune CART after fitting the training set.</p>
+<pre class='hljs' style=white-space:pre-wrap;word-wrap:break-word>
+<code>Score:
+ - Training score: 0.873
+ - Testing score: 0.667
+</code></pre>
+<p><br><center><img src="cart.svg" width=100%></center><br></p>
+<p><strong>Algorithm: pruning CART</strong><br />
+<strong>INPUT</strong>: tree $T_0$ generated by CART<br />
+<strong>OUTPUT</strong>: the optimal decision tree $T_\alpha$<br />
+<strong>INITIALIZE</strong>: $k=0,T=T_0,\alpha=+\infin$</p>
+<ol>
+<li>From top to bottom caculate $g(t) =\frac{C(t)-C\left(T_{t}\right)}{\left|T_{t}\right|-1}$, and let $\alpha =\min (\alpha, g(t))$. Here $T_t$ represents child tree with root $t$, $C\left(T_{t}\right)$ represents the prediction error, and $\left|T_{t}\right|$ represents the number of leaves on tree  $T_t$</li>
+<li>Prune node $t$ if $g(t) =\alpha$, label $t$ based on ajority voting, and return new tree $T$</li>
+<li>Let $k=k+1, \alpha_k=\alpha,T_k=T$</li>
+<li>If $T_k$ does not contain a root node and two leaf node, repeat 2, else let $T_k=T_n$</li>
+<li>Pick the optimal tree $T_\alpha$ from $T_1, T_2, \dots, T_n$ using cross validation</li>
+</ol>
+<p>And we can see that after pruning, CART becomes less likely to fit noisy and results in a better performance.</p>
+<pre class='hljs' style=white-space:pre-wrap;word-wrap:break-word>
+<code>Score:  
+ - Training score: 0.733  
+ - Testing score: 0.7  
+</code></pre>
+<p><br><center><img src="cart_prune.svg" width=100%></center><br></p>
+<h2>Reference</h2>
+<p>[1] Li, Hang. (2019). Statistical Learning Methods, Second Edition. Tsinghua University Press.<br />
+[2] Quinlan, J. R. (1986). Induction of decision trees. Machine learning, 1(1), 81-106.<br />
+[3] Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). The elements of statistical learning: data mining, inference, and prediction. Springer Science &amp; Business Media.<br />
+[4] Wikipedia contributors. (2019, December 24). Decision tree. In Wikipedia, The Free Encyclopedia. Retrieved 03:36, February 7, 2020, from https://en.wikipedia.org/w/index.php?title=Decision_tree&amp;oldid=932260312<br />
+[5] Wikipedia contributors. (2020, January 2). Decision tree pruning. In Wikipedia, The Free Encyclopedia. Retrieved 03:35, February 7, 2020, from https://en.wikipedia.org/w/index.php?title=Decision_tree_pruning&amp;oldid=933669740
+<br></p>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

@@ -1,0 +1,252 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Linear Regressions - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Linear Regressions</h1>
+                    2020-01-23
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>NOTES 01/21</h2>
+<h3>Linear Regression v.s. kNN</h3>
+<ul>
+<li>Least squares assumes $f(x)$ is well approximated by a <strong>globally</strong> linear function. <strong>High variance and low bias</strong>.</li>
+</ul>
+<p>$$\hat{\mathbf{Y}}=\mathbf{X}^{T} \hat{\beta}$$</p>
+<ul>
+<li>k-nearest neighbors assumes $f(x)$ is well approximated by a <strong>locally</strong> constant function. <strong>Low variance and high bias</strong>.</li>
+</ul>
+<p>$$\hat{\mathbf{Y}}(x)=\frac{1}{k} \sum_{x_{i} \in N_{k}(x)} y_{i}$$</p>
+<h3>Criterion for Choosing $\space f$</h3>
+<p>A loss function $L(\mathbf{Y}, f(\mathbf{X}))$ for penalizing errors in prediction helps us select a function $f(\mathbf{X})$ for predicting $\mathbf{Y}$ given values of the input $\mathbf{X}$: the expected  prediction error (the most common and convenient is squared error loss)</p>
+<p>$$ \begin{aligned} \mathrm{EPE}_{\hat{f}}(\mathbf{X}) &amp; = \mathrm{E}[L(\mathbf{Y}, \hat{f}(\mathbf{X}))] \\ &amp; = \mathrm{E}_{\mathbf{X}} \mathrm{E}_{\mathbf{Y} | \mathbf{X}}([L(\mathbf{Y}, \hat{f}(\mathbf{X}))]^{2} | \mathbf{X}) \end{aligned} $$</p>
+<p>By minimizing EPE we have the solution:</p>
+<p>$$ \begin{aligned} f(\mathbf{X}) &amp;=\operatorname{argmin}_{f} \mathrm{E}_{\mathbf{Y} | \mathbf{X}}([L(\mathbf{Y}, f(\mathbf{X}))] | \mathbf{X}) \\ &amp;=\operatorname{argmin}_{f} [\mathrm{E}_{\mathbf{Y} | \mathbf{X}}[\mathbf{Y}|\mathbf{X}]-f(\mathbf{X})]^2 \\ &amp;=\mathrm{E}(\mathbf{Y} | \mathbf{X}) \end{aligned} $$</p>
+<h2>NOTES 01/23</h2>
+<h3>Categorical v.s. Continious</h3>
+<ul>
+<li>EPEs for categorical variable and continious variable:</li>
+</ul>
+<p>$$\mathrm{EPE}_{\hat{f}}(\mathbf{X})=\mathrm{E}_{\mathbf{X}} \sum_{k=1}^{K} L(y_k, \hat{f}(\mathbf{X}_k)) \operatorname{Pr}(y_k | \mathbf{X}_k)$$</p>
+<p>$$\mathrm{EPE}_{\hat{f}}(\mathbf{X})=\mathrm{E}_{\mathbf{X}} \int[L(\mathbf{y}, \hat{f}(\mathbf{X})] d\hat{f}(\mathbf{X})$$</p>
+<ul>
+<li>Solutions for categorical variable and continious variable:</li>
+</ul>
+<p>$$\hat{f}(\mathbf{X})=\operatorname{argmin}_{f \in \mathcal{F}} \sum_{k=1}^{K} L(y_k, f(\mathbf{X}_k)) \operatorname{Pr}(y_k | \mathbf{X}_k)$$</p>
+<p>$$\hat{f}(\mathbf{X})=\operatorname{argmin}_{f \in \mathcal{F}} \int[L(\mathbf{y}, f(\mathbf{X})] df(\mathbf{X})$$</p>
+<h3>Decomposing Errors</h3>
+<p>Generally, MSE can be decomposed into variance and bias as follows:</p>
+<p>$$\begin{aligned} \operatorname{MSE}_{\hat{f}}(\mathbf{X}) &amp;=\mathrm{E} \tau[f(\mathbf{X})-\hat{f}(\mathbf{X})]^{2} \\ &amp;=\mathrm{E} \tau[\mathrm{E}_{\mathcal{T}} [\mathbf{y}|\mathbf{X}]-\hat{f}(\mathbf{X})]^{2} \\ &amp;=\mathrm{E}_{\mathcal{T}}[\hat{f}(\mathbf{X})-\mathrm{E}_{\mathcal{T}} [\hat{f}(\mathbf{X})]]^{2}+[\mathrm{E}_{\mathcal{T}} [\mathbf{y}|\mathbf{X}]- \mathrm{E}_{\mathcal{T}} [\hat{f}(\mathbf{X})] ]^{2} \\ &amp;=\operatorname{Var}_{\mathcal{T}}[\hat{f}(\mathbf{X})]+\operatorname{Bias}^{2}[\hat{f}(\mathbf{X})] \\ \end{aligned}$$</p>
+<p>However, when applying trained model to testing data, whether the testing data follows the same distribution of training data matters. Thus, the distribution of testing data itself is not ignorable. And the expected predicting error or the MSE of testing data can be expressed as follows:</p>
+<p>$$\begin{aligned} \operatorname{EPE}_{\hat{f}}(\mathbf{X}_{0}) &amp;=\mathrm{E}_{y_0 | \mathbf{X}_{0}} \mathrm{E}_{\mathcal{T}}(y_{0}-\hat{f}(\mathbf{X}_0))^{2} \\ &amp;=\mathrm{E}_{\mathcal{T}}[y_{0}-\mathrm{E}_{\mathcal{T}} [y_{0}|\mathbf{X}_0]]^{2} + \mathrm{E}_{\mathcal{T}} [\hat{f}(\mathbf{X}_0) - \mathrm{E}_{\mathcal{T}} [y_{0}|\mathbf{X}_0]] ^{2} \\ &amp;=\sigma^2 +\mathrm{E}_{\mathcal{T}}[\hat{f}(\mathbf{X}_0)-\mathrm{E}_{\mathcal{T}} [\hat{f}(\mathbf{X}_0)]]^{2}+[\mathrm{E}_{\mathcal{T}} [y_{0}|\mathbf{X}_0]- \mathrm{E}_{\mathcal{T}} [\hat{f}(\mathbf{X}_0)] ]^{2} \\ &amp;=\sigma^2+\operatorname{Var}_{\mathcal{T}}[\hat{f}(\mathbf{X}_0)]+\operatorname{Bias}^{2}[\hat{f}(\mathbf{X}_0)] \end{aligned}$$</p>
+<h3>E.G.1 Linear Regression Error Decomposition</h3>
+<p>The prediction can be expressed by</p>
+<p>$$\hat{f_{\mathcal{T}}}(x_0)=x_0^T\hat{\beta}=x_0^T(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^Ty$$</p>
+<p>We have</p>
+<p>$$\mathrm{E}_{\mathcal{T}}[\hat{f_{\mathcal{T}}}(x_0)]=x_0^T\beta$$</p>
+<p>and</p>
+<p>$$\begin{aligned} \mathrm{Var}_{\mathcal{T}}[\hat{f_{\mathcal{T}}}(x_0)] &amp;= x_0^T\sigma^2\mathrm{E}_{\mathcal{T}}[(\mathbf{X}^T\mathbf{X})^{-1}]x_0 \\ &amp;= \sigma^2\mathrm{E}_{\mathcal{T}}[x_i^T(\mathbf{X}^T\mathbf{X})^{-1}x_i] \\ &amp;= \frac{\sigma^2}{N} trace[\mathrm{Cov}(\mathbf{X})^{-1}\mathrm{Cov}(x_0)] \\ &amp;= \frac{\sigma^2p}{N} \end{aligned}$$</p>
+<p>The EPE is calculated as $\mathrm{EPE}_{\hat{f}}(x_0) = \sigma^2(1+\frac{p}{N})$. Thus, $\mathrm{EPE}_{\hat{f}}(x_0)$ goes up as the dimension $p$ goes up. If $N$ is large and/or $\sigma^2$ is small, this growth is negligible.</p>
+<h3>E.G.2 kNN Error Decomposition</h3>
+<p>Let $y_i=g(x_i)+e_i, \mathrm{E}(e_i)=0, \mathrm{Var}(e_i)=\sigma^2$.The prediction can be expressed by $\hat{f}_{\mathrm{T}}(x_0)=\frac{1}{k}\sum_{i \in N_k(x_0)} y_i$.</p>
+<p>We have $\mathrm{E}_{\mathrm{t}} [\hat{f}_{\mathrm{T}}(x_0)] = \frac{1}{k}\sum_{i \in N_k(x_0)} g(x_i)$ and $\mathrm{Var}_{\mathrm{T}}[\hat{f}_{\mathrm{T}(x_0)}]=\frac{\sigma^2}{k}$.</p>
+<p>The EPE can be decomposed as</p>
+<p>$$\mathrm{EPE}_{\hat{f}}(x_0) = \sigma^2(1+\frac{1}{k})+[\frac{1}{k}\sum_{i \in N_k(x_0)}g(x_i)-g(x_0)]^2$$</p>
+<p>Thus, larger $k$ leads to a simpler model with low bias and high variance. The most complex model occurs when $k=1$, which has zero variance (since every point in training set is predicted by itself) and high bias.</p>
+<h2>NOTES 01/28</h2>
+<h3>Linear Regression</h3>
+<p>Assume that $\mathrm{E}[y_p|\mathbf{X}_p]=\beta_0+\sum_{i=1}^n\beta_ix_{pi}$. Let $\hat{\beta}$ denotes the estimation of $\beta$. By minimizing</p>
+<p>$$\operatorname{RSS}(\beta)=|\mathbf{y}-\mathbf{X} \beta|^{2}$$</p>
+<p>the solution $\hat{\beta}$ can be expressed by</p>
+<p>$$\hat{\beta}=\left(\mathbf{X}^{T} \mathbf{X}\right)^{-1} \mathbf{X}^{T} \mathbf{y}$$</p>
+<p>The matrix $\mathbf{H}=\mathbf{X}\left(\mathbf{X}^{T} \mathbf{X}\right)^{-1} \mathbf{X}^{T}$ is called &quot;hat&quot; matrix or projection matrix sometimes. So, we can rewrite $\hat{\mathbf{y}}$ and $\hat{\mathbf{e}}$ as</p>
+<p>$$\hat{\mathbf{y}}=\mathbf{X} \hat{\beta}=\mathbf{X}\left(\mathbf{X}^{T} \mathbf{X}\right)^{-1} \mathbf{X}^{T} \mathbf{y}$$</p>
+<p>$$\hat{\mathbf{e}}=\mathbf{y}-\hat{\mathbf{y}}=(\mathbf{I}-\mathbf{H})\mathbf{y}$$</p>
+<p>As shown, both $\hat{\mathbf{y}}$ and $\hat{\mathbf{e}}$ is essentially a linear combination of $\mathbf{X}$ and $\mathbf{y}$. Or, we can say that $\hat{\mathbf{y}}$ is orthogonally projected by the projection matrix from $\mathbf{y}$ to the hyperplane spanned by the input matrix $\mathbf{X}$.</p>
+<p>Therefore, the projection of any $\mathbf{X}^\prime$ is itself, and the distance between $\mathbf{X}^\prime$ and its projection is $\mathbf{0}$:</p>
+<p>$$\mathbf{H}\mathbf{X}^\prime = \mathbf{X}^\prime$$</p>
+<p>$$(\mathbf{I}-\mathbf{H})\mathbf{X}^\prime = \mathbf{0}$$</p>
+<h3>Regression by Successive Orthogonalization</h3>
+<p>Suppose first that we have a univariate model with no intercept, that is, $Y=X \beta+\epsilon $, and we let $\mathbf{y}=\left(y_{1}, \dots, y_{N}\right)^{T}, \mathbf{x}=\left(x_{1}, \dots, x_{N}\right)^{T}$. The least squares estimate and residuals are</p>
+<p>$$\hat{\beta}=\frac{\langle\mathbf{x}, \mathbf{y}\rangle}{\langle\mathbf{x}, \mathbf{x}\rangle}$$</p>
+<p>$$\mathbf{r}=\mathbf{y}-\mathbf{x} \hat{\beta}$$</p>
+<p>Suppose next that the inputs $\mathbf{x}_{1}, \mathbf{x}_{2}, \ldots, \mathbf{x}_{p}$ (the columns of the data matrix $\mathbf{X}$ ) are orthogonal; that is $\left\langle\mathbf{x}_{j}, \mathbf{x}_{k}\right\rangle= 0$ for all $j \neq k .$ Then the multiple least squares estimates $\beta_{j}$ are equal to $\left\langle\mathbf{x}_{j}, \mathbf{y}\right\rangle /\left\langle\mathbf{x}_{j}, \mathbf{x}_{j}\right\rangle$.</p>
+<blockquote>
+<p><strong>Why Orthogonalize X?</strong> <a href="https://mertricks.com/2016/08/07/the-magic-behind-the-linear-methods-for-regression-part-1/">Source</a>
+When we have input variables that are not correlated with each other, then it means input variables are orthogonal to each other. Thus, each input variable does not have any effect on the coefficients of other input variables. That means since they are orthogonal to each other, the effect of an input variable cannot be captured by the any other input variables. But when they are not orthogonal (some correlation), then the coefficients of correlated variables become shaky and unstable.</p>
+</blockquote>
+<p>With this idea, we can estimate $\beta$ in another way. Firstly, we use <em>Gram–Schmidt</em> procedure to  orthogonalize the inputs.</p>
+<p><strong>STEP 1:</strong> Set $\mathbf{z}_{0}=\mathbf{x}_{0}=\mathbf{1}$
+<strong>STEP 2:</strong> For every $\mathbf{x}_{j},\space j=1,2, \dots, p$, regress $\mathbf{x}_{j}$ on $\mathbf{z}_{\ell}$ to get coefficients $\hat{\gamma}_{\ell j}=\left\langle\mathbf{z}_{\ell}, \mathbf{x}_{j}\right\rangle /\left\langle\mathbf{z}_{\ell}, \mathbf{z}_{\ell}\right\rangle$ $(\ell= 0, 1, \dots, j-1)$, and let $\mathbf{z}_{j}$ equal to residual $\mathbf{x}_{j}-\sum_{k=0}^{j-1} \hat{\gamma}_{k j} \mathbf{z}_{k}$.</p>
+<p>Step 2 can be represented in matrix form $ \mathbf{X} = \mathbf{Z} \mathbf{\Gamma} $. Let $\mathbf{D}=\mathrm{Diag}{\frac{1}{\Vert \mathbf{z}_i \Vert}}$, we get $ \mathbf{X} = \mathbf{Z D}^{-1} \mathbf{D} \mathbf{\Gamma} =\mathbf{Q} \mathbf{R}$ (thin/reduced QR decomposition). So the least squares solution is given by:</p>
+<p>$$\hat{\beta}=\left(\mathbf{X}^{T} \mathbf{X}\right)^{-1} \mathbf{X}^{T} \mathbf{y}=\mathbf{R}^{-1} \mathbf{Q}^{T} \mathbf{y}$$</p>
+<p>$$\hat{\mathbf{y}}= \mathbf{X} \hat{\beta}= \mathbf{Q} \mathbf{Q}^{T} \mathbf{y}$$</p>
+<p>In full QR decomposition, $ \mathbf{X} = \left[ \begin{array}{ccc} \mathbf{Q} &amp; \mathbf{Q}_n \end{array} \right] \left[ \begin{array}{ccc} \mathbf{R} &amp; \mathbf{0} \end{array} \right]^{T} = \mathbf{Q} \mathbf{R}$. And we have:</p>
+<p>$$\mathbf{H}=\mathbf{X}\left(\mathbf{X}^{T} \mathbf{X}\right)^{-1} \mathbf{X}^{T}=\mathbf{Q} \mathbf{Q}^{T}$$</p>
+<p>$$(\mathbf{I}-\mathbf{H}) = \mathbf{Q}_n \mathbf{Q}_n^{T}$$</p>
+<p>A graph for helping understand QR decomposition (<a href="http://iacs-courses.seas.harvard.edu/courses/am205/slides/am205_lec08.pdf">Source</a>):</p>
+<center><img src="./qr.svg" width='50%'></center>
+<h2>NOTES 01/30</h2>
+<h3>Evaluate the Estimation of $\space \hat{\beta}$</h3>
+<p>Assume that $\mathbf{y} \overset{\text{i.i.d.}}{\sim} N(\mathbf{X}\beta, \sigma^2 \mathbf{I}_N)$, we have:</p>
+<p>$$\mathrm{E} (\hat{\beta}) = (\mathbf{X}^T \mathbf{X})^{-1}\mathbf{X}^T\space\mathrm{E}(\mathbf{y}) = (\mathbf{X}^T \mathbf{X})^{-1}\mathbf{X}^T\mathrm{E}(\mathbf{X}\beta) = \beta$$</p>
+<p>$$\begin{aligned} \mathrm{Var}(\hat{\beta}) &amp;= \mathrm{Var}[(\mathbf{X}^T \mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}] \\ &amp;= (\mathbf{X}^T \mathbf{X})^{-1}\mathbf{X}^T\space \mathrm{Var}(\mathbf{y})\space((\mathbf{X}^T \mathbf{X})^{-1}\mathbf{X}^T)^T \\ &amp;= \sigma^2(\mathbf{X}^T\mathbf{X})^{-1} \end{aligned}$$</p>
+<p>Thus, $\hat{\beta}_{LS} \sim N(\beta, \sigma^2(\mathbf{X}^T\mathbf{X})^{-1})$.</p>
+<p>Notice that</p>
+<p>$$\begin{aligned} \mathrm{RSS}(\hat{\beta}) &amp;= \mathbf{y}^T(\mathbf{I}-\mathbf{H})^T(\mathbf{I}-\mathbf{H})\mathbf{y} = \mathbf{y}^T(\mathbf{I}-\mathbf{H})\mathbf{y} \\ &amp;= \mathbf{y}^T\mathbf{Q}_n\mathbf{Q}_n^T\mathbf{y} = (\mathbf{Q}_n^T\mathbf{y})^T\mathbf{Q}_n^T\mathbf{y} \end{aligned}$$</p>
+<p>Thus, $\frac{1}{\sigma}\mathbf{Q}_n^T\mathbf{y} \sim N(\mathbf{Q}_n^T\mathbf{QR}\beta, \mathbf{Q}_n\mathbf{Q}_n^T) \rightarrow N(\mathbf{0}, \mathbf{I}_{N-p-1})$ and $\frac{\mathrm{RSS}(\hat{\beta})}{\sigma^2} \sim \chi_{N-p-1}^2$.</p>
+<p>And $\mathrm{E}\left(\frac{\mathrm{RSS}(\hat{\beta})}{\sigma^2}\right) = N-p-1 \rightarrow \mathrm{E}\left(\frac{\mathrm{RSS}(\hat{\beta})}{N-p-1}\right) = \mathrm{E}(\hat{\sigma}^2) = \sigma^2$</p>
+<h3>Hypothesis Testing</h3>
+<p>Suppose now we want to test $\mathrm{H}_0: \mathbf{c}^T\hat{\beta}=a$. We have $\mathbf{c}^T\hat{\beta} \sim N(\mathbf{c}^T\beta, \sigma^2\mathbf{c}^T(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{c})$.</p>
+<p>Notice that $\frac{\mathbf{c}^T\hat{\beta} - \mathbf{c}^T\beta}{\sqrt{\sigma^2\mathbf{c}^T(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{c})}} \sim N(\mathbf{0}, \mathbf{I})$, by slightly transform the formula we get a <em>t-student</em> distribution:</p>
+<p>$$\frac{\mathbf{c}^T\hat{\beta} - \mathbf{c}^T\beta}{\sqrt{\sigma^2\mathbf{c}^T(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{c})}} / \sqrt{\frac{\hat{\sigma}^2(N-p-1)}{\sigma^2(N-p-1)}} \sim t_{n-p-1}$$</p>
+<p>When it comes to joint hypothesis testing $\mathrm{H}_0: \mathbf{C}^T\hat{\beta}=\mathbf{a}$, we tend to construct an $F$ distribution:</p>
+<p>$$\frac{\mathrm{RSS}_0 - \mathrm{RSS}}{\sigma^2} \sim \chi_{p-p_0}^2$$</p>
+<p>$$\frac{\frac{\mathrm{RSS}_0 - \mathrm{RSS}}{\sigma^2}/(p-p_0)}{\frac{\mathrm{RSS}}{\sigma^2}/(N-p-1)} \sim \mathrm{F}_{p-p_0,N-p-1}$$</p>
+<h2>NOTES 02/04</h2>
+<h3>Subset Selection</h3>
+<p>$$\hat{\beta}_{ss}(\lambda)=\operatorname{argmin}_{\beta \in \mathrm{R}^{p+1}} \sum_{i=1}^{n}(y_i-\beta_0-\sum_{j}^{p}x_{ij}\beta_j)^2+\lambda | \left\{ j, \beta_j \not = 0 \right\} |$$</p>
+<p>This is also called $L0$ regression. To choose the penalty parameter $\lambda$, we can use &quot;subjective&quot; criteria or split $\tau(\mathrm{training\space data})$ and perform cross validation. $\lambda = \frac{1}{\sigma^2}$ corresponds to miniming AIC.</p>
+<p>However, with this formula we need to go through all possible subset selections of features in order to find $\hat{\beta}_{ss}(x)$.</p>
+<h3>Shrinkage Methods</h3>
+<p>Another way to control the complexity is called &quot;shrink&quot;.</p>
+<p>$$\hat{\beta}_{Ridge}(\lambda)=\operatorname{argmin}_{\beta \in \mathrm{R}^{p+1}} \sum_{i=1}^{n}(y_i-\beta_0-\sum_{j}^{p}x_{ij}\beta_j)^2+\lambda\sum_{j=1}^{p}\beta_j^2$$</p>
+<p>The coefficient can be obtain much simpler for estimating the ridge regression parameters.</p>
+<ul>
+<li>Issue 1: $\beta_0$ is excluded in penalty term.
+Solution: centered the features. ($y \leftarrow y-\bar{y}\mathbf{1}_n$, $x_j \leftarrow x_j-\bar{x}_j\mathbf{1}_n$)</li>
+<li>Issue 2: The coefficients are not equally fitted due to different scales.
+Solution: standardization. ($x_j \leftarrow \frac{x_j}{\mathrm{S}(x_j)} = \frac{x_j}{||x_j||}$)</li>
+</ul>
+<p>Note that the correlation of $x_i$ and $x_j$ is $x_i^Tx_j$.</p>
+<p>Thus, now we have a new formula after centralization and standardization:</p>
+<p>$$\hat{\beta}_{Ridge}(\lambda)=\operatorname{argmin}_{\beta} (\mathbf{y}-\mathbf{X}\beta)^T (\mathbf{y}-\mathbf{X}\beta)+\lambda \beta^T\beta=\mathrm{Q}(\beta)$$</p>
+<p>$$\frac{\partial\mathrm{Q}}{\partial\beta}(\hat{\beta}_{Ridge})=0 \Longrightarrow \hat{\beta}_{Ridge}=(\mathbf{X}^T\mathbf{X}-\lambda\mathbf{I}_p)^{-1}\mathbf{X}^T\mathbf{y}$$</p>
+<h3>How does this relate to $\space \hat{\beta}_{LS}$</h3>
+<p>$$\begin{aligned} \hat{\beta}_{Ridge} &amp;= (\mathbf{X}^T\mathbf{X}-\lambda\mathbf{I}_p)^{-1}\mathbf{X}^T\mathbf{y} \\ &amp;= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y} - (\mathbf{X}^T\mathbf{X})^{-1}(\mathbf{X}^T\mathbf{X}+\lambda\mathbf{I}_p)^{-1}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y} \\ &amp;= \hat{\beta}_{LS} - (\mathbf{X}^T\mathbf{X})^{-1}(\mathbf{X}^T\mathbf{X}+\lambda\mathbf{I}_p)^{-1}\hat{\beta}_{LS} \\ &amp;= \hat{\beta}_{LS} - (\mathbf{I}_p+\lambda^{-1}\mathbf{X}^T\mathbf{X})^{-1}\hat{\beta}_{LS} \\ &amp;= \hat{\beta}_{LS} - \lambda(\lambda\mathbf{I}_p+\mathbf{X}^T\mathbf{X})^{-1}\hat{\beta}_{LS} \end{aligned}$$</p>
+<p>As penalization increases, $\hat{\beta}_{Ridge}$ goes to 0 (&quot;Shrinkage&quot;). As penalization decreases to 0, $\hat{\beta}_{Ridge}$ goes to $\hat{\beta}_{LS}$. Moreover, $\beta^T\beta$ can be represented  as $||\beta||_2^2$, which means we actually control the length of $\hat{\beta}_{Ridge}$. Ridge regression is also called $L2$ regression since it uses $L2$ norm to calculate distence.</p>
+<p>Another representation:</p>
+<p>$$\operatorname{argmin}_{\beta} \mathrm{RSS}(\beta)+\lambda\beta^T\beta \Longleftrightarrow \operatorname{argmin}_{\beta}\mathrm{RSS}(\beta) \space \mathrm{s.t.} \beta^T\beta \leq ts$$</p>
+<h3>Insights via SVD</h3>
+<p>The <em>singular value decomposition</em> (SVD) of the centered input matrix $\mathbf{X}$ gives us some additional insight into the nature of ridge regression. With SVD, we have $\mathbf{X} = \mathbf{U}\mathbf{D}\mathbf{V}^T$.</p>
+<p>For least square regression, we have:</p>
+<p>$$\mathbf{X}\hat{\beta}_{LS} = \mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y} = \mathbf{U}\mathbf{U}^T\mathbf{y}$$</p>
+<p>Although we already know that $\mathbf{X}\hat{\beta}_{LS} = \mathrm{H}\mathbf{y} = \mathbf{Q}\mathbf{Q}^T\mathbf{y}$, generally, $\mathbf{Q} \not = \mathbf{U}$.</p>
+<p>For Ridge regression:</p>
+<p>$$\begin{aligned} \mathbf{X}\hat{\beta}_{Ridge} &amp;= \mathbf{X}(\mathbf{X}^T\mathbf{X}+\lambda\mathbf{I})^{-1}\mathbf{X}^T\mathbf{y} \\ &amp;= \mathbf{U}\mathbf{D}(\mathbf{D}^2+\lambda\mathbf{I})^{-1}\mathbf{D}\mathbf{U}^T\mathbf{y} \\ &amp;= \sum_{j=1}^{p} \mathbf{u}_j\frac{d_j^2}{d_j^2+\lambda}\mathbf{u}_j^T\mathbf{y} \end{aligned}$$</p>
+<p>Usually, we have $d_1  \geq d_2 \geq \dots \geq d_p$. Thus, $\lambda$'s impact becomes greater with smaller $d_j$.</p>
+<h3>Using Estimation Picture to Understand Shrinkage</h3>
+<p>$$\begin{aligned} \mathrm{RSS} &amp;= (\mathbf{y}-\mathbf{X}\beta)^T (\mathbf{y}-\mathbf{X}\beta) \\ &amp;= (\mathbf{y}-\mathbf{X}\hat{\beta}_{LS})^T (\mathbf{y}-\mathbf{X}\hat{\beta}_{LS}) + (\beta - \hat{\beta}_{LS})^T\mathbf{X}^T\mathbf{X}(\beta - \hat{\beta}_{LS}) \end{aligned}$$</p>
+<p>Thus, $\mathrm{RSS}$ can represent an eclipse. How coefficients &quot;shrinking&quot; is shown below:</p>
+<center><img src="./lassoridge.svg" width='50%'></center>
+<h2>NOTES 02/06 &amp; 02/11</h2>
+<h3>General Form of Regularization</h3>
+<p>The penalty term can be expressed by $\lambda\sum_{i=1}^q|\beta_i|^q$, where $q$ represents the norm. Generally, the coefficients can be written as</p>
+<p>$$\beta=\operatorname{argmin}_{\beta \in \mathrm{R}^{p+1}}Fit(\tau, \beta)+Pen_\lambda(\beta)$$</p>
+<p>We already know that $L0$ regression performs well in feature selection while $L2$ regression performs well in shrinking coefficients. The one in the middle, LASSO regression, combines these two advantages.</p>
+<p>$$\hat{\beta}_{Lasso}(\lambda)=\operatorname{argmin}_{\beta \in \mathrm{R}^{p+1}} \sum_{i=1}^{n}(y_i-\beta_0-\sum_{j}^{p}x_{ij}\beta_j)^2+\lambda\sum_{j=1}^{p}|\beta_j|$$</p>
+<p>Elastic Net goes further. It overcomes several limitations that LASSO has. For example, in the &quot;large $p$, small $n$&quot; case (high-dimensional data with few examples), the LASSO selects at most n variables before it saturates. Also if there is a group of highly correlated variables, then the LASSO tends to select one variable from a group and ignore the others.</p>
+<p>$$\hat{\beta}_{EN}(\lambda)=\operatorname{argmin}_{\beta \in \mathrm{R}^{p+1}} \sum_{i=1}^{n}(y_i-\beta_0-\sum_{j}^{p}x_{ij}\beta_j)^2+\lambda_1\sum_{j=1}^{p}|\beta_j|+\lambda_2\sum_{j=1}^{p}\beta_j^2$$</p>
+<h3>PCA regression</h3>
+<p>Think of $\mathbf{X} = \left[\mathbf{X}_1^T, \mathbf{X}_2^T, \dots, \mathbf{X}_n^T \right]^T$ s.t. $\mathbf{1}_n^T\mathbf{X}=\mathbf{0}$ (centralized). Then,</p>
+<p>$$S=\frac{1}{n}\mathbf{X}\mathbf{X}^T=\frac{1}{n}\mathbf{VD}^2\mathbf{V}^T=\frac{1}{n}\sum_{j=1}^pd_j^2v_jv_j^T$$</p>
+<p>Let $\mathbf{Z}=\mathbf{XV}=\mathbf{UD}$, which is linearly derived from original features. Then we have $\mathrm{S}_Z=\frac{1}{n}\mathbf{Z}^T\mathbf{Z}=\frac{1}{n}\mathbf{D}^2$ and $\mathbf{X}\beta=\mathbf{UD}\mathbf{V}^T\beta=\mathbf{Z}\theta$, where $\theta=\mathbf{V}^T\beta$.Thus, we see that PCA regression is an equivalent form of ordinary least square regression:</p>
+<p>$$\begin{aligned} \hat{\theta} &amp;=\operatorname{argmin}_{\theta} (\mathbf{y}-\mathbf{Z}\theta)^T (\mathbf{y}-\mathbf{Z}\theta)+\lambda \theta^T\theta \\&amp;=\operatorname{argmin}_{\theta} (\mathbf{y}-\mathbf{X}\beta)^T (\mathbf{y}-\mathbf{X}\beta)+\lambda \beta^T\mathbf{V}\mathbf{V}^T\beta \\&amp;=\operatorname{argmin}_{\theta} (\mathbf{y}-\mathbf{X}\beta)^T (\mathbf{y}-\mathbf{X}\beta)+\lambda \beta^T\beta \end{aligned}$$</p>
+<h3>Least-angle Regression (LARS)</h3>
+<p>Assume that $\mathbf{X} = [\mathbf{x}_1,\mathbf{x}_2,\dots,\mathbf{x}_p]$ has been centered and standardized ($\mathbf{x}_j^T\mathbf{x}_j=1$, $\mathbf{x}_j^T\mathbf{1}_n=0$). Take $j=\argmax_{k \in \left\{1,2,\dots,p\right\}}|\mathbf{x}_k^T\mathbf{y}|$.</p>
+<p>Instead of taking $\hat{\beta}_j=(\mathbf{x}_j^T\mathbf{x})^{-1}\mathbf{x}_j^T\mathbf{y}=\mathbf{x}_j^T\mathbf{y}$, we define</p>
+<p>$$\hat{\beta}_j(\alpha)=(1-\alpha)0+\alpha\mathbf{x}_j^T\mathbf{y},\space\alpha\in\left[0,1\right]$$</p>
+<p>$$\mathbf{r}_1(\alpha)=\mathbf{y}-\mathbf{x}_j\hat{\beta}_j(\alpha)$$</p>
+<p>Therefore, $|\mathbf{x}_j^T\mathbf{r}_1(\alpha)|=|\mathbf{x}_j^T\mathbf{y}-\alpha\mathbf{x}_j^T\mathbf{x}_j\mathbf{x}_j^T\mathbf{y}|=(1-\alpha)|\mathbf{x}_j^T\mathbf{y}|$</p>
+<p>Assume then, that at step $k$ of the procedure, we have an active set $A_k$ of features that are in the model: $k-1$ features with current estimates $\hat{\beta}_{A_{k-1}}$ and one feature $k^\star$ which is about to enter the model, $\hat{\beta}_{k^\star}=0$. Assume that the absolute residual correlation is tied:</p>
+<p>$$|\mathbf{x}_{A_k}^T\mathbf{r}_{k-1}| = \mathbf{c}_k\mathbf{1}_n \rightarrow |x_j^Tr_{k-1}| = c_{k}$$</p>
+<p>Thus, we have the following formula:</p>
+<p>$$\begin{aligned} \hat{\beta}_{A_k}(\alpha) &amp;= (1-\alpha) \begin{bmatrix} \hat{\beta}_{A_{k-1}} \\ 0 \end{bmatrix} + \alpha (\mathbf{x}_{A_k}^T\mathbf{x}_{A_k})^{-1}\mathbf{x}_{A_k}^T\mathbf{y} \\ &amp;= \begin{bmatrix} \hat{\beta}_{A_{k-1}} \\ 0 \end{bmatrix} + \alpha (\mathbf{x}_{A_k}^T\mathbf{x}_{A_k})^{-1}\mathbf{x}_{A_k}^T (\mathbf{y} - \mathbf{x}_{A_k} \begin{bmatrix} \hat{\beta}_{A_{k-1}} \\ 0 \end{bmatrix} ) \\ &amp;= \begin{bmatrix} \hat{\beta}_{A_{k-1}} \\ 0 \end{bmatrix} + \alpha (\mathbf{x}_{A_k}^T\mathbf{x}_{A_k})^{-1}\mathbf{x}_{A_k}^T \mathbf{r}_{k-1}\end{aligned}$$</p>
+<p>And since $\mathbf{r}_k(\alpha)=\mathbf{y}-\mathbf{x}_{A_k}\hat{\beta}_{A_k}(\alpha)$, we have:</p>
+<p>$$\begin{aligned} |\mathbf{x}_{A_k}^T\mathbf{r}_k(\alpha)| &amp;= |\mathbf{x}_{A_k}^T\mathbf{y} - \mathbf{x}_{A_k}^T\mathbf{x}_{A_k}\begin{bmatrix} \hat{\beta}_{A_{k-1}} \\ 0 \end{bmatrix} - \alpha\mathbf{x}_{A_k}^T\mathbf{r}_{k-1}| \\ &amp;= (1-\alpha) |\mathbf{x}_{A_k}^T\mathbf{r}_{k-1}| = (1-\alpha) \mathbf{c}_k\mathbf{1}_k \\ \rightarrow |\mathbf{x}_{j}^T\mathbf{r}_k(\alpha)| &amp;= (1-\alpha) c_{k} \end{aligned}$$</p>
+<p><strong>Algorithm</strong>
+<strong>Set</strong> $\space\mathbf{r}_0=\mathbf{y}-\bar{\mathbf{y}}\mathbf{1}_n$
+  $A_0=\varnothing$
+  $A_1=\left\{\argmax_{j=1,2,\dots,p}|\mathbf{x}_j^Tr_0|\right\}$
+  $c_1=\mathrm{max}_{\left\{j=1,2,\dots,p\right\}}|\mathbf{x}_j^T\mathbf{r}_0|$
+<strong>For</strong> $k=1,2,\dots,p$, <strong>do</strong>
+ <strong>Set</strong> $\space\hat{\beta}_{A_k}(\alpha)=\begin{bmatrix} \hat{\beta}_{A_{k-1}} \\ 0 \end{bmatrix} + \alpha (\mathbf{x}_{A_k}^T\mathbf{x}_{A_k})^{-1}\mathbf{x}_{A_k}^T\mathbf{r}_{k-1}$
+   $\mathbf{r}_k(\alpha)=\mathbf{y}-\mathbf{x}_{A_k}\hat{\beta}_{A_k}(\alpha)$
+ <strong>For</strong> $j \not \in A_k$ <strong>do</strong>
+  Find $\alpha$ such that $|\mathbf{x}_{j}^T\mathbf{r}_k(\alpha_j)| = (1-\alpha_j) c_{k}$
+  <strong>Set</strong> $\space k^\star = \argmin_{j \not \in A_k} \alpha_j$
+    $A_{k+1}=A_k\cup{k^\star}$
+    $\hat{\beta}_{A_k}=\hat{\beta}_{A_k}(\alpha_{k^\star})$
+    $\mathbf{r}_{A_k}=\mathbf{r}_{A_k}(\alpha_{k^\star}), c_{k+1}=(1-\alpha_{k^\star})c_k$
+ <strong>End</strong>
+<strong>End</strong></p>
+<p>Surprisingly it can be shown that, with one modification, this procedure gives the entire path of lasso solutions. The modification needed is: if a non-zero coefficient hits zero, remove it from the active set of predictors and recompute the joint direction.</p>
+<center><img src="./lars.svg" width='50%'></center>
+<p>At each stage the LARS estimate $\mu_k$ approaches, but does not reach, the corresponding OLS estimate $y_k$.</p>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

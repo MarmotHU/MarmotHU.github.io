@@ -1,0 +1,236 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Multilevel Models - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Multilevel Models</h1>
+                    2020-11-19
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>Notes</h2>
+<p><strong>Hierarchical Linear Modeling (HLM)</strong></p>
+<ul>
+<li>Clustering in cross-sectional data
+<ul>
+<li>Clustering can be present even without a time dimension
+<ul>
+<li>Individuals belong to groups, and groups' attributes may affect individuals' outcomesC</li>
+<li>Ignoring the effects of group membership may bias results</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Atomistic fallacy: See groups as merely collections of individuals, and ignore effects that those groups themselves may have</li>
+<li>Specifying the model
+<ul>
+<li>Best to be guided by theory, and by previous research on your question</li>
+</ul>
+</li>
+<li>Luke (2004) distinguishes among 3 types of group-level variables:
+<ul>
+<li>Variables that are just aggregates of individual characteristics
+<ul>
+<li>e.g. % of area residents who are Latino, or school mean SES</li>
+</ul>
+</li>
+<li>Variables that measure relationships among group members.
+<ul>
+<li>e.g. ‘friendship density’ in a classroom, or relational coordination among providers</li>
+</ul>
+</li>
+<li>Variables that are truly attributes of the group itself
+<ul>
+<li>e.g. whether a city is on the coast; whether a school is public or private</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Applications
+<ul>
+<li>Performance measurement
+<ul>
+<li>Often policymakers want to compare performance across units likeschools, hospitals but some groups are very small</li>
+<li>Multilevel models can help provide estimates even for smaller groups – because it uses a weighted average of info from within the group and info from the overall sample,
+<ul>
+<li>For large groups – most of the weight goes on the group’s own performance</li>
+<li>For smaller groups – more weight goes on the population mean performance (‘shrinkage to the grand mean’). (Also called an ‘empirical Bayes’ approach)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Identifying importance of group-level factors
+<ul>
+<li>You can use multilevel models to figure out how much of a given outcome is attributable to characteristics of individuals, versus the groups they belong to</li>
+<li>Example: the obesity epidemic often gets blamed on individual behaviors (choices around food, exercise etc.)</li>
+</ul>
+</li>
+<li>Testing whether an exposure has an independent effect at both group and individual levels
+<ul>
+<li>Example: Many would hypothesize that living in a neighborhood with high unemployment is bad for an individual’s mental health. But to test that hypothesis, you need to control for each individual’s own employment situation. Reword question: After controlling for own-unemployment, are people adversely affected by their neighbors’ unemployment?</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Challenges to multilevel models (Diez-Roux, 2000)
+<ul>
+<li>What’s the theory?
+<ul>
+<li>What are the mechanisms through which group-level variables have their effect?</li>
+<li>• E.g. do neighborhood differences reinforce individual social class differences? Or the other way round?</li>
+</ul>
+</li>
+<li>How well-defined are the groups?
+<ul>
+<li>Some groups are very clearly defined, e.g. which hospital a patient visited</li>
+<li>Others are less clear, e.g. neighborhoods; what are the boundaries? are they so clear to residents? To researchers?</li>
+</ul>
+</li>
+<li>Self-selection
+<ul>
+<li>Do individuals select themselves into the groups? Based on unmeasured chars?</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2>Model setup</h2>
+<p><a href="./gcse.dta">gcse.dta</a></p>
+<ul>
+<li>Settings</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Label</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">gcse</td>
+<td align="left">Graduate Certificate of Secondary Education (GCSE) score (in z score, multiplied by 10 in the dataset)</td>
+</tr>
+<tr>
+<td align="left">lrt</td>
+<td align="left">London Reading Test (LRT) score (in z score, multiplied by 10 in the dataset)</td>
+</tr>
+<tr>
+<td align="left">school</td>
+<td align="left">School identifier</td>
+</tr>
+<tr>
+<td align="left">student</td>
+<td align="left">Student identifier</td>
+</tr>
+<tr>
+<td align="left">girl</td>
+<td align="left">dummy variable for student being a girl (1: girl; 0: boy)</td>
+</tr>
+<tr>
+<td align="left">schgend</td>
+<td align="left">type of school (1: mixed gender; 2: boys only; 3: girls only)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Random intercepts model</strong></li>
+</ul>
+<p>$\begin{aligned} \text{Micro level: } &amp;(gcse)_{ij}= \beta_{0j}+ r_{ij}\\ \text{Macro level: } &amp;\beta_{0j}= \gamma_{00}+ u_{0j}\\ \text{Full model: }&amp; (gcse)_{ij}= \gamma_{00}+ u_{0j} + r_{ij}\\ \end{aligned}$</p>
+<pre><code>mixed gcse || school:
+estat icc
+</code></pre>
+<ul>
+<li><strong>Random intercepts model with level-1 predictors</strong> (Does GCSE vary by school, controlling for LRT and student gender?)</li>
+</ul>
+<p>$\begin{aligned} \text{Micro level: }&amp;(gcse)_{ij}= \beta_{0j}+ \beta_{1j}(lrt)_{ij} +\beta_{2j}(girl)_{ij} +r_{ij}, \space [r_{ij}\sim N(0,\sigma_r^2)] \\ \text{Macro level: } &amp;\beta_{0j}= \gamma_{00}+ u_{0j},\space [u_{0j}\sim N(0,\tau_{00})] \\  &amp;\beta_{1j}=\gamma_{10} \\ &amp;\beta_{2j}=\gamma_{20} \\ \text{Full model: } &amp;(gcse)_{ij}= \gamma_{00}+ \gamma_{10}(lrt)_{ij} +\gamma_{20}(girl)_{ij}+u_{0j} + r_{ij}\end{aligned}$</p>
+<pre><code>mixed gcse lrt girl || school:
+estat icc
+</code></pre>
+<ul>
+<li><strong>Random intercept, random slope model with level-1 predictors</strong> (Does the effect of LRT on GCSE vary by school, controlling for student gender?)</li>
+</ul>
+<p>$\begin{aligned} \text{Micro level: }&amp;(gcse)_{ij}= \beta_{0j}+ \beta_{1j}(lrt)_{ij} +\beta_{2j}(girl)_{ij} +r_{ij}, \space [r_{ij}\sim N(0,\sigma_r^2)] \\ \text{Macro level: } &amp;\beta_{0j}= \gamma_{00}+ u_{0j},\space [u_{0j}\sim N(0,\tau_{00})] \\ &amp;\beta_{1j}=\gamma_{10}+u_{1j},\space [u_{1j}\sim N(0,\tau_{11})] \\ &amp;\beta_{2j}=\gamma_{20} \\ \text{Full model: } &amp;(gcse)_{ij}= \gamma_{00}+ \gamma_{10}(lrt)_{ij} +\gamma_{20}(girl)_{ij}+u_{0j} +u_{1j}(lrt)_{ij} + r_{ij} \end{aligned}$</p>
+<pre><code>mixed gcse lrt girl|| school: lrt, cov(uns) var
+estat icc
+</code></pre>
+<ul>
+<li><strong>Random intercept model with two level-1 predictors and one level-2 predictor</strong> (Does GCSE vary by school, controlling for LRT, student gender, and schgend?)</li>
+</ul>
+<p>$\begin{aligned} \text{Micro level: }&amp;(gcse)_{ij}= \beta_{0j}+ \beta_{1j}(lrt)_{ij} +\beta_{2j}(girl)_{ij} +r_{ij}, \space [r_{ij}\sim N(0,\sigma_r^2)] \\ \text{Macro level: } &amp;\beta_{0j}= \gamma_{00}+\gamma_{01}(schgend)_j+ u_{0j},\space [u_{0j}\sim N(0,\tau_{00})] \\  &amp;\beta_{1j}=\gamma_{10} \\ &amp;\beta_{2j}=\gamma_{20} \\ \text{Full model: } &amp;(gcse)_{ij}= \gamma_{00}+ \gamma_{01}(schgend)_j+\gamma_{10}(lrt)_{ij} +\gamma_{20}(girl)_{ij}+u_{0j} + r_{ij} \end{aligned}$</p>
+<pre><code>mixed gcse lrt girl i.schgend || school:
+estat icc
+</code></pre>
+<ul>
+<li><strong>Random intercept, random slope model with cross-level interaction terms</strong> (Does GCSE vary by school, controlling for LRT, student gender, schgend, and cross-level effects of schgend and LRT?)</li>
+</ul>
+<p>$\begin{aligned} \text{Micro level: }&amp;(gcse)_{ij}= \beta_{0j}+ \beta_{1j}(lrt)_{ij} +\beta_{2j}(girl)_{ij} +r_{ij}, \space [r_{ij}\sim N(0,\sigma_r^2)] \\ \text{Macro level: } &amp;\beta_{0j}= \gamma_{00}+\gamma_{01}(schgend)_j+ u_{0j},\space [u_{0j}\sim N(0,\tau_{00})] \\  &amp;\beta_{1j}=\gamma_{10}+\gamma_{11}(schgend)_j+ u_{1j},\space [u_{1j}\sim N(0,\tau_{11})] \\ &amp;\beta_{2j}=\gamma_{20} \\ \text{Full model: } &amp;(gcse)_{ij}= \gamma_{00}+ \gamma_{01}(schgend)_j+\gamma_{10}(lrt)_{ij} +\gamma_{11}(schgend)_j (lrt)_{ij}\\ &amp;\space\space\space\space\space\space\space\space\space\space\space+\gamma_{20}(girl)_{ij}+u_{0j} +u_{1j}(lrt)_{ij} + r_{ij} \end{aligned}$</p>
+<pre><code>mixed gcse i.schgend lrt c.lrt##i.schgend girl|| school: lrt, cov(un) var
+estat icc
+</code></pre>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

@@ -1,0 +1,162 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Regression Discontinuity - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Regression Discontinuity</h1>
+                    2020-10-15
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>Notes</h2>
+<p>(Bailey, 2015)</p>
+<ul>
+<li>Context: when the treatment is not assigned randomly. For example,  sometimes people are assigned to treatments or programs based on some rule that creates a &quot;cutoff&quot; on a continuous score
+<ul>
+<li>Income must be below a cutoff to collect SNAP, or join Medicaid</li>
+<li>Adults must be age 65+ to join Medicare</li>
+</ul>
+</li>
+<li>Key assumption: the only thing different between people just above versus those just below the threshold is the receipt of the &quot;treatment&quot;.</li>
+<li>The basic model
+<ul>
+<li>$y_i = \beta_0+\beta_1 T_i + \beta_2 (x_{1i}-C)+\epsilon_i, T_i=1 if x_{1i} \leq C else 0$
+, where $T_i$ is treatment, $y_i$ is the outcome, and $x_{1i}$ is the &quot;assignment variable&quot; with cutoff at $C$</li>
+<li>Interpretation
+<ul>
+<li>$\beta_1$: whether there was a jump in the outcome at the cutoff point (we're most interested in)</li>
+<li>$\beta_2$: the relationship between the distance-to-cutoff variable
+<center><img src="RD1.png" width=60%></center>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Varying slopes model
+<ul>
+<li>$y_i = \beta_0+\beta_1 T_i + \beta_2 (x_{1i}-C)+ \beta_3(x_{1i}-C)T_i+\epsilon_i$</li>
+<li>Interpretation
+<ul>
+<li>$\beta_3$ measures how different the slope is for observations above cutoff vs below cutoff</li>
+<li>$\beta_2$ now refers only to the slope for observations below the cutoff
+<center><img src="RD2.png" width=60%></center>     
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Polynomial model
+<ul>
+<li>$y_i = \beta_0+\beta_1 T_i + \beta_2 (x_{1i}-C)+\beta_3 (x_{1i}-C)^2+ \beta_4 (x_{1i}-C) T_i+\beta_5 (x_{1i}-C)^2 T_i+\epsilon_i$
+<center><img src="RD3.png" width=60%></center>
+</li>
+</ul>
+</li>
+<li>Varying bandwidth
+<ul>
+<li>One way to check results is to vary the size of the &quot;window&quot; around the cutoff.</li>
+<li>There are tradeoffs involved
+<ul>
+<li>Reducing bandwidth reduces bias, because we have greater confidence in the similarity of people on either side of the cutoff, the closer they are to it.</li>
+<li>But it also reduces precision, by making your sample smaller. Your standard errors get larger, so you lose some statistical power.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Diagnostics
+<ul>
+<li>Qualitative (have to understand the source of any bias)
+<ul>
+<li>Do the subjects know about the cutoff? If they don’t know about it, we’re less likely to see &quot;strategic behavior&quot;</li>
+<li>Even if they know that there is a cutoff, do they know the exact level? If not, there may not be as much gaming, e.g. people will just try to do their best on the test.</li>
+</ul>
+</li>
+<li>Quantitative
+<ul>
+<li>McCrary test: Test for bunching of the density around the cutoff</li>
+<li>Test whether other variables jump at the cutoff (Hainmueller, 2017)</li>
+</ul>
+</li>
+<li>Placebo test: Try using an alternative cutoff, that wasn’t the one actually used to assign treatment.</li>
+</ul>
+</li>
+<li>Limitations
+<ul>
+<li>Generalizability: this design reports the effect of treatment on people close to the assignment threshold. It's a &quot;Local Average Treatment Effect&quot; (LATE).</li>
+<li>Timeframe: only describes short term effects of intervention. For longer term effects, we would need to follow up with another design.</li>
+</ul>
+</li>
+<li>Fuzzy RD design
+<ul>
+<li>RD design can also be used in situations where other factors beside the &quot;assignment variable&quot; affect assignment: Some get treatment even though they are below the threshold, and some don’t get treatment even though they are above the threshold</li>
+</ul>
+</li>
+</ul>
+<h2>RD in Stata</h2>
+<p>Almost the same as OLS.</p>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

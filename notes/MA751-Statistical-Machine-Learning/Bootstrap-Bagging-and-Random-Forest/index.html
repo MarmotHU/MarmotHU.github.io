@@ -1,0 +1,114 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Bootstrap, Bagging and Random Forest - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Bootstrap, Bagging and Random Forest</h1>
+                    2020-04-19
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>NOTES 04/16</h2>
+<p>Suppose we observe $\tau = \left\{(\mathbf{x}_i,y_i)\right\}_{i=1,\dots,N}$ with $p$ features, such that</p>
+<p>$$\mathbf{z}_i = (\mathbf{x}_i, y_i) \overset{\mathrm{i.i.d}}{\sim} F(\beta)$$</p>
+<p>where $F$ is a CDF parameterized by $\beta$.</p>
+<p><u>Note</u> In general, $\beta=T(F)$ is a functional of $F$.</p>
+<p>To estimate $\beta$ we use a function $\hat{\beta}=S(\mathbf{z})$ and want to assess the uncertainty of $\hat{\beta}$, $\mathrm{Var}_{F}[\hat{\beta}]$. We can use $\mathrm{Var}_{\hat{F}}[\hat{\beta}]$, with $\hat{F}$ the empirical CDF, but it might still be hard to evaluate or compute. In this case, we can furhter approximate using Monte-Carlo Simulation:</p>
+<p>For $b=1,\dots,B$, we sample $\mathbf{z}^{*}\overset{\mathrm{i.i.d}}{\sim} \hat{F}$, compute ${\hat{\beta}^{*}}^{(b)}=S({\mathbf{z}^{*}}^{(b)})$, and estimate</p>
+<p>$$\mathrm{Var}_{\hat{F}}(\hat{\beta}) \approx \frac{1}{B} \sum_{b=1}^{B} \left({\hat{\beta}^{*}}^{(b)} - \overline{\hat{\beta}^{*}} \right)^2=\hat{\mathrm{Var}}_{\mathrm{Boot}}[\hat{\beta}]$$</p>
+<p>where $\overline{\hat{\beta}^{*}}=\frac{1}{B} \sum_{b=1}^{B} {\hat{\beta}^{*}}^{(b)} \approx \mathbb{E}_{\hat{F}}[\hat{\beta}]$</p>
+<p>Now, to sample from $\hat{F}$ we just need to realize that $\hat{F}$ puts mass $\frac{1}{N}$ at each $\mathbf{z}_i$ and so we can simply sample uniformly with replacement from $\tau$ (&quot;Bootstrap&quot;).</p>
+<p>In summary:</p>
+<p>$$\mathrm{Var}_{F}(\hat{\beta}) \approx \mathrm{Var}_{\hat{F}}(\hat{\beta}) \approx \hat{\mathrm{Var}}_{\mathrm{Boot}}[\hat{\beta}]$$</p>
+<p>E.G., $y_i \overset{\mathrm{i.i.d}}{\sim}N(\mu(\mathbf{x}_i), \sigma^2)$, $\mu(\mathbf{x}_i) = \sum_{i=1}^{P}h_j(\mathbf{x}_i)\beta_j$, $h_j$ are cubic splines with fixed knots.</p>
+<p><br><center><img src="./boundary.png" width='70%'></center><br></p>
+<p>While Bootstrap is mostly used to estimate uncertainty, we can also use it for prediction by taking the mean $\overline{\hat{\beta}^{*}}$. More generally, suppose we want a prediction $\hat{f}(\mathbf{x})$, we could then use bootstrap aggregation or &quot;bagging&quot; averages:</p>
+<p>$$\hat{f}_{\mathrm{Bag}}(\mathbf{x})=\frac{1}{B}\sum_{b=1}{B}{\hat{f}^{*}}^{(b)}(\mathbf{x})\approx\mathbb{E}_{\hat{F}}[\hat{f}(\mathbf{x})]$$</p>
+<p>The bagged estimate $\hat{f}_{\mathrm{Bag}}$ will differ mostly from $hat{f}$ when $f$ is a non-linear or adaptive function of the data. For instance, if we allowed the knots in the previous example to vary, then $\hat{f}_{\mathrm{Bag}}$ would deviate from $\hat{f}$ and $\hat{\mathrm{Var}}_{\mathrm{Boot}}$ would better capture $\hat{\mathrm{Var}}_{F}$. Because $\hat{f}_{\mathrm{Bag}}$ is on average, bagging reduces estimation variance, it is smoother, and can thus improve prediction accurancy.</p>
+<p>E.G., regression trees for classification</p>
+<p><br><center><img src="./rt.png" width='70%'></center><br></p>
+<p><br><center><img src="./bt.png" width='70%'></center><br></p>
+<p>$$\hat{T}_{\mathrm{Bag}}(\mathbf{x}_0) = \frac{1}{B}\sum_{b=1}^{B}T(\mathbf{x}_0; {\hat{\beta}^{*}}^{(b)})$$</p>
+<p>$$\hat{G}(\mathbf{x}_0) = I[T(\mathbf{x}_0; \hat{\beta})&gt;0.5]$$</p>
+<p>$$\hat{G}(\mathbf{x}_0) = I[\hat{T}_{\mathrm{Bag}}(\mathbf{x}_0; \hat{\beta})&gt;0.5]$$</p>
+<p>Bagging can be very benefitial to estimators that are very &quot;flexible&quot;, i.e., with high variance and low bias, such as (deep) trees. Most of these come from averaging and thus variance reduction.</p>
+<p>If $\mathbf{z}_i \overset{\mathrm{i.i.d}}{\sim} F$ with mean $\mu$ and variance $\sigma^2$, $\mathbb{E}[\hat{\mathbf{z}}]=\mu$ and $\mathrm{Var}[\hat{\mathbf{z}}]=\frac{\sigma^2}{N}$. But if each pair $\mathbf{z}_i$ and $\mathbf{z}_j$ has correlation $p$ then $\mathbb{E}[\overline{\mathbf{z}}]=\mu$ but $\mathrm{Var}[\overline{\mathbf{z}}]=p\sigma^2+\frac{1-p}{N}\sigma^2$.</p>
+<p>Thus, $\hat{f}_{\mathrm{Bag}}(\mathbf{x}) = \frac{1}{B}\sum_{b=1}^{B}\hat{f}(\mathbf{x}_0; {\hat{\beta}^{*}}^{(b)})$ has the same low bias as $\hat{f}(\mathbf{x}_0; {\hat{\beta}^{*}})$ but has a lower bound on its variance If the bootstrapped samples are correlated. In the case of trees, there's a simple way to reduce correlation: when growing the tree on a bootstrapped dataset, before each split, select $m \leq p$ of the features at random as candidates for splitting (&quot;Random Forest&quot;)</p>
+<p><u>Notes</u></p>
+<ul>
+<li>
+<p>$m$ is usually $O(\sqrt{p})$. We just need to tune $m$ and $B$, so random forest are easy to train.</p>
+</li>
+<li>
+<p>Performance from boosted trees might be better, but it often requires more calibration.</p>
+</li>
+<li>
+<p>Bootstrap and bagging are conputationally expensive, but can be used in &quot;big data&quot; contexts with subsampling; check, e.g., &quot;Bag of Little Bootstraps&quot; (BLB).</p>
+</li>
+</ul>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    

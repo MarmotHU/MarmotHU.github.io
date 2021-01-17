@@ -1,0 +1,209 @@
+﻿
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+                <title>Interrupted Time Series - Jimmy Z. Hu's Blog</title>
+                <style rel="stylesheet" type="text/css">
+                    body {font-family: Georgia; font-size: 17px;}
+h2 {margin-top: 40px; border-bottom: 1px solid #999; text-transform: uppercase;}
+p {text-align: left; line-height: 1.4em;}
+pre {
+    background: #f4f4f4; border: 1px solid #ddd; border-left: 3px solid #9f9f9f; 
+    color: #666; page-break-inside: avoid; font-family: monospace; font-size: 15px; 
+    line-height: 1.1; max-width: 100%; overflow: auto; padding: 0.5em 0.5em; 
+    display: block; word-wrap: break-word;
+}
+li {line-height: 1.25em;}
+a:link {text-decoration: none; color: blue;}
+a:visited {text-decoration: none; color: blue;}
+.container {width: 750px; margin-left: auto; margin-right: auto; padding: 50px 0 50px 0;}
+.title {text-align: left;}
+.katex {font-size: 1em !important;} 
+table {width: 100%%;}
+table, th, td {border: 1px solid black;}
+
+                </style>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+                <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        renderMathInElement(document.body, {
+                            delimiters: [
+                              {left: "$$", right: "$$", display: true},
+                              {left: "$", right: "$", display: false}
+                            ] 
+                        });
+                    });
+                </script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="title">Interrupted Time Series</h1>
+                    2020-10-22
+                    <span style="float:right; _position:relative;">
+                        <a href="/home">HOME</a>
+                        &ensp;
+                        <a href="/notes">NOTES</a> &ensp; <a href="../">RELATED</a>
+                    </span><br/>
+                    <h2>Notes</h2>
+<ul>
+<li>Context
+<ul>
+<li>the pre-post design faces a &quot;maturation&quot; threat to validity, if you only have 1 obs pre, and 1 obs post</li>
+<li>Interrupted time series designs address that issue
+<ul>
+<li>Time series: not just 2 time periods</li>
+<li>Interrupted by an intervention or policy change</li>
+<li>There could be a change in the level, the trend, or both</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Basic model
+$y_t = \beta_0 + \beta_1 time_t+\beta_2 post_t+\beta_3 time_t post_t+\epsilon_t$</li>
+<li>Timing issues
+<ul>
+<li>Immediacy of effect
+<ul>
+<li>Is it instantaneous, delayed, or gradual?</li>
+<li>Anticipatory, e.g. in response to a pre-announced policy change?</li>
+<li>How to address in modeling?</li>
+</ul>
+</li>
+<li>Persistence of effect
+<ul>
+<li>Does the effect decay over time (e.g. effect of an ad campaign)?</li>
+<li>Or get amplified (e.g. oil price shock)?</li>
+</ul>
+</li>
+<li>Best to specify your expectations before you look at the data</li>
+</ul>
+</li>
+<li>Models with &gt;1 change point
+$y_t = \beta_0 + \beta_1 time_t+\beta_2 post1_t+\beta_3 time_t post1_t + \beta_4 post2_t+\beta_5 time_t post2_t+\epsilon_t$</li>
+<li>Requirements
+<ul>
+<li>Need to check that nothing else changed at either timepoint</li>
+<li>Data on continuous or counted outcome measures, summarized at regular, evenly spaced intervals</li>
+<li>At least 12 data points before intervention and 12 after to address seasonality (if data are monthly)</li>
+<li>Many authors recommend at least 50 obs in total (e.g. Shardell). Shardell also quotes guidelines of no fewer than 10 obs per parameter, to avoid overfitting</li>
+<li>Each observation should represent data from 100+ subjects, for acceptable variability of the estimates (Wagner)</li>
+</ul>
+</li>
+<li>Autocorrelation
+<ul>
+<li>Durbin-Watson test</li>
+<li>In ITS models, time is a key explanatory variable. So, obs from adjacent time periods may have correlated errors. This can result in understatement of standard errors, leading to incorrect inference (= incorrectly infer a variable is statistically significant)</li>
+<li>Forms of autocorrelation
+<ul>
+<li>Correlations gradually get weaker as obs are further apart in time: AR model</li>
+<li>Correlations quickly drop off: moving-average</li>
+<li>Other patterns involving both – can use an ARMA model that combines both autoregressive and moving average</li>
+</ul>
+</li>
+<li>Solutions
+<ul>
+<li>Adjust the OLS model for autocorrelation: estimate the autocorrelation parameter. Then use that estimate to adjust the explanatory variables in the main regression model</li>
+<li>Move to an ARIMA model (less common)</li>
+</ul>
+</li>
+<li>Example
+<ul>
+<li>Wagner et al, 2002</li>
+<li>Conducting interrupted time-series analysis for single- and multiple-group comparisons, Linden</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>ITS with a control group (Linden paper)
+<br>$y_t = \beta_0 + \beta_1 T_t+\beta_2 post_t+\beta_3 T_t post_t+ \beta_4 ex_t +\beta_5 T_t ex_t + \beta_6 post_t ex_t + \beta_7 T_t post_t ex_t +\epsilon_t$
+<ul>
+<li>where:
+<ul>
+<li>&quot;ex&quot; flags observations from the experimental group</li>
+<li>Variables interacted with Ex refer to the experimental group (second row)</li>
+<li>Variables not interacted with Ex refer to the control group (first row)</li>
+</ul>
+</li>
+<li>So to see the effect of the intervention, we look at:</li>
+<li>$\beta_6$ (for change in level that’s unique to the experimental group) and</li>
+<li>$\beta_7$ (for change in trend that’s unique to the experimental group)</li>
+</ul>
+</li>
+<li>Control variables?
+<ul>
+<li>ITS models are usually run on aggregate data</li>
+<li>Individual characteristics are not available as control variables</li>
+</ul>
+</li>
+<li>Limitations
+<ul>
+<li>Segmented regression analysis assumes a linear trend within each segment.
+<ul>
+<li>If you want to allow for nonlinearity, need more parameters… so, more obs</li>
+</ul>
+</li>
+<li>Ecological fallacy may apply, since the data are usually aggregated
+<ul>
+<li>An association between X and Y at aggregate level doesn’t necessarily imply they are associated at the individual level</li>
+</ul>
+</li>
+<li>If groups were selected based on early values of the outcome, results may be biased
+<ul>
+<li>E.g. those volunteering to join health insurance may have had particularly high baseline costs.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2>ITS in STATA</h2>
+<ul>
+<li>Generate sequences to count the elapsed time since the start of each intervention.</li>
+</ul>
+<pre><code>reg ${outcome} ${T} ${INT1dummy} ${TX1} ${INT2dummy} ${TX2}
+</code></pre>
+<ul>
+<li>Replicate Figure 2 of Wagner, 2002.</li>
+</ul>
+<p><a href="./rxs.dta">rxs.dta</a></p>
+<pre><code>twoway (connected presc obs) ///
+(pcarrowi 1 21 2 21 (6) &quot;Three-drug cap begins&quot;) ///
+(pcarrowi 1.7 31 2.5 31 (6) &quot;Cap replaced by $1 copay&quot;), ///
+ytitle(Mean number of prescriptions per patient) ytick(0(1)7) ///
+ylabel(0 &quot;0&quot; 1 &quot;1&quot; 2 &quot;2&quot; 3 &quot;3&quot; 4 &quot;4&quot; 5 &quot;5&quot; 6 &quot;6&quot; 7 &quot;7&quot;, ///
+labsize(small) angle(horizontal)) ///
+xlabel(1 &quot;Jan 80&quot; 7 &quot;Jul 80&quot; 13 &quot;Jan 81&quot; 19 &quot;Jul 81&quot; 25 &quot;Jan 82&quot; ///
+31 &quot;Jul 82&quot; 37 &quot;Jan 83&quot; 43 &quot;Jul 83&quot;, noticks labsize(small)) ///
+xtick(1(6)48)  xtitle(month) ///
+legend(off)
+</code></pre>
+<center><img src="ITS.png" width=60%></center>
+
+                    <p style="border-top: 1px solid #dbdbdb; margin-top: 40px;"></p>
+                    <div id="valine-thread"></div>
+                    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+                    <script src='/js/Valine.min.js'></script>
+                    <script>
+                        new Valine({
+                            el: '#valine-thread',
+                            appId: 'DSTtKETb5UeyXIjoPTpRnC8Y-gzGzoHsz',
+                            appKey: 'csHaHWqxD2Ujv84O7jaJWOSc',
+                            verify: false,
+                            avatar: 'robohash',
+                            placeholder: '',
+                            meta: ['nick', 'mail'],
+                            requiredFields: ['nick'],
+                            visitor: true,
+                            lang: 'en'
+                        })
+                    </script>
+                  
+                    <footer>
+                        <p style="padding: 5px 0 0 0; text-align: center; font-size: .9rem; border-top: 1px solid #dbdbdb;margin-top: 40px;">&#169; 2021 Jimmy Z. Hu<br>This website is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0.</a></p>
+                    </footer>
+                </div>
+            </body>
+        </html>
+    
